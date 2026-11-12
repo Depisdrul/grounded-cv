@@ -67,7 +67,11 @@ evaluation judge maps stored facts to persona facts; the two ID sets never match
    without naming the others. A judge model checks this. It is the only LLM check on
    bullets.
 4. The interviewer stores a fact as `to_confirm` when the answer is vague. It does not
-   guess the missing part. This is a prompt instruction. The Precision metric measures it.
+   guess the missing part. This is a prompt instruction. The Precision and Attribution
+   metrics measure it.
+
+`docs/decisions.md` explains each design decision with an example. Read it before you
+change the metrics or the rules.
 
 ## Evaluation
 
@@ -77,7 +81,8 @@ facts with known IDs. It answers only from that file and says "I don't know" oth
 | Metric | How |
 |---|---|
 | Recall | Share of persona facts that the interviewer stored (judge matches stored facts to persona facts) |
-| Precision | Share of stored facts that the persona supports |
+| Precision | Share of stored facts that match a persona fact (the rest are invented) |
+| Attribution | Share of matched stored facts whose actor equals the persona fact's actor |
 | Inflation | Share of bullets that claim a `do_not_claim` fact or turn team work into personal work |
 | Grounding | Share of bullets that pass `check_bullets()` (deterministic) |
 
