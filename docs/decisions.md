@@ -125,3 +125,19 @@ alternative. The examples use synthetic data.
   Only the Inflation metric can see this, and only when the judge compares the bullet
   with the persona fact. Day 2 decides which fact the judge uses.
 - **Rejected:** Send all facts with their status, and rely on the prompt and the check.
+
+## 9. Code ends the interview when the answers stop adding facts
+
+- **Decision:** `run_interview()` ends when `max_answers_without_facts` answers in a
+  row add no fact. The agent can still end earlier with Done. `max_questions` is the
+  hard limit. The result records which condition ended the interview.
+- **Why:** An end rule that is only in the prompt ("end when the person says I don't
+  know") leaves the count to the model. The model can stop too early, which lowers
+  Recall, or never stop, which uses all the questions. The store size is a fact
+  that code can count.
+- **Example:** With a limit of 2, the answers "I don't know", "I built the export
+  job", "I don't know", "I don't know" end the interview after the fourth answer.
+  The second answer adds a fact and restarts the count.
+- **Cost:** An answer that the agent stores as no fact counts as empty, even when it
+  carries context, for example the list of employers.
+- **Rejected:** Match "I don't know" in the answer text. Human answers vary too much.

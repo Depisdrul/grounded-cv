@@ -1,6 +1,8 @@
 """Interviewer agent: asks one question at a time and stores facts."""
 
 from collections.abc import Callable
+from dataclasses import dataclass
+from enum import StrEnum
 
 from pydantic import BaseModel
 from pydantic_ai import Agent, RunContext
@@ -35,8 +37,7 @@ How to store facts:
 - Store a fact about another team's work with actor "team" or "colleague".
   Never change it to "me".
 
-When the person has nothing more to add, or says "I don't know" to every new
-topic, end the interview with Done.
+When the person has nothing more to add, end the interview with Done.
 """
 
 
@@ -75,24 +76,59 @@ _LAST_ANSWER_NOTE = (
 )
 
 
+class EndReason(StrEnum):
+    """Why the interview ended."""
+
+    AGENT_DONE = 'agent_done'
+    QUESTION_LIMIT = 'question_limit'
+    NO_NEW_FACTS = 'no_new_facts'
+
+
+@dataclass(frozen=True)
+class InterviewResult:
+    """How the interview ended, and the full message history."""
+
+    end_reason: EndReason
+    messages: list[ModelMessage]
+
+
 def run_interview(
     model: Model | str,
     store: FactStore,
     answer: Answerer,
     max_questions: int = 30,
-) -> list[ModelMessage]:
-    """Run the interview until the agent returns Done or the question limit.
+    max_answers_without_facts: int = 3,
+) -> InterviewResult:
+    """Ask questions and store facts until one of three end conditions.
 
-    The limit is `max_questions` answers. After the last allowed answer, the
-    agent runs once more with Done as the only output, so that it stores the
-    facts of that answer. The facts go to `store`.
-    Returns the full message history, for tracing and evaluation.
+    The interview ends when:
+    - the agent returns Done;
+    - the person has given `max_questions` answers. The agent then runs once
+      more with Done as the only output, so that it stores the facts of the
+      last answer;
+    - `max_answers_without_facts` answers in a row add no fact, for example
+      "I don't know".
+
+    Args:
+        model: A PydanticAI model, or a model name such as
+            `google-gla:gemini-2.5-flash`.
+        store: Receives the facts that the agent saves.
+        answer: Returns the answer to each question.
+        max_questions: The most answers that the interview asks for.
+        max_answers_without_facts: The most answers in a row that add no
+            fact.
+
+    Returns:
+        The end reason and the full message history, for tracing and
+        evaluation.
     """
     history: list[ModelMessage] = []
     prompt = 'Start the interview.'
     answers = 0
+    answers_without_facts = 0
     while True:
         last_run = answers == max_questions
+        facts_before = len(store.all())
         result = interviewer.run_sync(
             prompt + _LAST_ANSWER_NOTE if last_run else prompt,
             output_type=Done if last_run else None,
@@ -101,7 +137,16 @@ def run_interview(
             message_history=history,
         )
         history = result.all_messages()
+        if len(store.all()) > facts_before:
+            answers_without_facts = 0
+        elif answers > 0:
+            answers_without_facts += 1
+
+        if last_run:
+            return InterviewResult(EndReason.QUESTION_LIMIT, history)
         if isinstance(result.output, Done):
-            return history
+            return InterviewResult(EndReason.AGENT_DONE, history)
+        if answers_without_facts == max_answers_without_facts:
+            return InterviewResult(EndReason.NO_NEW_FACTS, history)
         prompt = answer(result.output.text)
         answers += 1

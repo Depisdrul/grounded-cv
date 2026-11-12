@@ -5,7 +5,7 @@ from pathlib import Path
 from pydantic_ai.messages import ModelResponse, ToolCallPart, UserPromptPart
 from pydantic_ai.models.function import FunctionModel
 
-from cv_agent.interviewer import _LAST_ANSWER_NOTE, run_interview
+from cv_agent.interviewer import _LAST_ANSWER_NOTE, EndReason, run_interview
 from cv_agent.models import Actor, Fact, Status
 from cv_agent.store import FactStore
 
@@ -23,6 +23,40 @@ def user_prompts(history):
         for part in getattr(message, 'parts', [])
         if isinstance(part, UserPromptPart)
     ]
+
+
+def save_answers_with_built_else_ask(messages, info):
+    """A model that saves an answer that contains 'built' as a fact.
+
+    The answer text becomes the fact's action. On every other model call,
+    the model asks 'What else?'.
+    """
+    answer_texts = [
+        part.content
+        for part in messages[-1].parts
+        if isinstance(part, UserPromptPart)
+    ]
+    if answer_texts and 'built' in answer_texts[0]:
+        return ModelResponse(
+            parts=[
+                ToolCallPart(
+                    'save_fact',
+                    {
+                        'fact': {
+                            'employer': 'Example Freight Ltd',
+                            'role': 'Data engineer',
+                            'period': '2021-2023',
+                            'action': answer_texts[0],
+                            'actor': 'me',
+                            'status': 'confirmed',
+                        }
+                    },
+                )
+            ]
+        )
+    return ModelResponse(
+        parts=[ToolCallPart('final_result_Question', {'text': 'What else?'})]
+    )
 
 
 class RunInterviewTest(unittest.TestCase):
@@ -72,8 +106,15 @@ class RunInterviewTest(unittest.TestCase):
             questions.append(question)
             return 'We moved the servers to the cloud.'
 
-        run_interview(model, self.store, answer, max_questions=5)
+        result = run_interview(
+            model,
+            self.store,
+            answer,
+            max_questions=5,
+            max_answers_without_facts=3,
+        )
 
+        self.assertEqual(result.end_reason, EndReason.AGENT_DONE)
         self.assertEqual(questions, ['What did you build?'])
         self.assertEqual(
             self.store.all(),
@@ -104,28 +145,79 @@ class RunInterviewTest(unittest.TestCase):
                 )
             return ModelResponse(
                 parts=[
-                    ToolCallPart(
-                        output_tool_names[0], {'reason': 'Limit reached.'}
-                    )
+                    ToolCallPart('final_result', {'reason': 'Limit reached.'})
                 ]
             )
 
         answers = iter(['First answer.', 'Second answer.'])
 
-        history = run_interview(
+        result = run_interview(
             FunctionModel(ask_until_only_done_is_allowed),
             self.store,
             lambda question: next(answers),
             max_questions=2,
+            max_answers_without_facts=5,
         )
 
+        self.assertEqual(result.end_reason, EndReason.QUESTION_LIMIT)
         self.assertEqual(
-            user_prompts(history),
+            user_prompts(result.messages),
             [
                 'Start the interview.',
                 'First answer.',
                 'Second answer.' + _LAST_ANSWER_NOTE,
             ],
+        )
+
+    def test_ends_after_the_answers_in_a_row_without_facts(self):
+        answers = iter(["I don't know.", "I don't know."])
+
+        result = run_interview(
+            FunctionModel(save_answers_with_built_else_ask),
+            self.store,
+            lambda question: next(answers),
+            max_questions=10,
+            max_answers_without_facts=2,
+        )
+
+        self.assertEqual(result.end_reason, EndReason.NO_NEW_FACTS)
+        self.assertEqual(
+            user_prompts(result.messages),
+            ['Start the interview.', "I don't know.", "I don't know."],
+        )
+
+    def test_an_answer_with_a_fact_restarts_the_count(self):
+        answers = iter(
+            [
+                "I don't know.",
+                'I built the export job.',
+                "I don't know.",
+                "I don't know.",
+            ]
+        )
+
+        result = run_interview(
+            FunctionModel(save_answers_with_built_else_ask),
+            self.store,
+            lambda question: next(answers),
+            max_questions=10,
+            max_answers_without_facts=2,
+        )
+
+        self.assertEqual(result.end_reason, EndReason.NO_NEW_FACTS)
+        self.assertEqual(
+            user_prompts(result.messages),
+            [
+                'Start the interview.',
+                "I don't know.",
+                'I built the export job.',
+                "I don't know.",
+                "I don't know.",
+            ],
+        )
+        self.assertEqual(
+            [fact.action for fact in self.store.all()],
+            ['I built the export job.'],
         )
 
 

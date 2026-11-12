@@ -21,11 +21,13 @@ class Status(StrEnum):
     DO_NOT_CLAIM = 'do_not_claim'
 
 
-class _Strict(BaseModel):
+class StrictModel(BaseModel):
+    """Base model that rejects unknown fields and strips whitespace."""
+
     model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
 
 
-class NewFact(_Strict):
+class NewFact(StrictModel):
     """A fact before the store gives it an ID.
 
     The interviewer's save_fact tool takes this.
@@ -48,7 +50,7 @@ class Fact(NewFact):
     id: str = Field(min_length=1)
 
 
-class Bullet(_Strict):
+class Bullet(StrictModel):
     """One CV line and the IDs of the facts that support it.
 
     An empty `fact_ids` list is valid here, so that `check_bullets()` can reject

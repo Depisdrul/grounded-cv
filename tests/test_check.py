@@ -1,6 +1,6 @@
 import unittest
 
-from cv_agent.check import BulletCheck, Reason, check_bullets
+from cv_agent.check import BulletCheckResult, RejectionReason, check_bullets
 from cv_agent.models import Actor, Bullet, Fact, Status
 
 
@@ -25,7 +25,7 @@ class CheckBulletsTest(unittest.TestCase):
         self.assertEqual(
             results,
             [
-                BulletCheck(
+                BulletCheckResult(
                     bullet=bullet, passed=True, reason=None, fact_id=None
                 )
             ],
@@ -39,10 +39,10 @@ class CheckBulletsTest(unittest.TestCase):
         self.assertEqual(
             results,
             [
-                BulletCheck(
+                BulletCheckResult(
                     bullet=bullet,
                     passed=False,
-                    reason=Reason.NO_FACT_IDS,
+                    reason=RejectionReason.NO_FACT_IDS,
                     fact_id=None,
                 )
             ],
@@ -56,10 +56,10 @@ class CheckBulletsTest(unittest.TestCase):
         self.assertEqual(
             results,
             [
-                BulletCheck(
+                BulletCheckResult(
                     bullet=bullet,
                     passed=False,
-                    reason=Reason.UNKNOWN_ID,
+                    reason=RejectionReason.UNKNOWN_ID,
                     fact_id='F9',
                 )
             ],
@@ -83,10 +83,10 @@ class CheckBulletsTest(unittest.TestCase):
                 self.assertEqual(
                     results,
                     [
-                        BulletCheck(
+                        BulletCheckResult(
                             bullet=bullet,
                             passed=False,
-                            reason=Reason.NOT_CONFIRMED,
+                            reason=RejectionReason.NOT_CONFIRMED,
                             fact_id='F2',
                         )
                     ],
