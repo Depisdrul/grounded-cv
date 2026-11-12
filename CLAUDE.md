@@ -109,10 +109,16 @@ keep the results in `results/` so that runs can be compared.
 
 ```bash
 conda create -n cv-agent python=3.13 -y          # once
-conda run -n cv-agent python -m pip install -e .  # once, and after a dependency change
+conda run -n cv-agent python -m pip install -e .[dev]  # once, and after a dependency change
 conda run -n cv-agent python -m unittest discover -s tests             # all tests
 conda run -n cv-agent python -m unittest tests.test_check.CheckBulletsTest.test_bullet_without_fact_ids_fails  # one test
+conda run -n cv-agent ruff format .                                    # format
+PYTHON=~/AppData/Local/miniconda3/envs/cv-agent/python.exe scripts/check.sh  # lint, format check, tests
 ```
+
+A commit must pass `scripts/check.sh`. The local pre-commit hook runs it after the
+privacy checks. Ruff settings are in `ruff.toml`: line length 80, single quotes, LF
+line endings (`.gitattributes` forces LF on checkout).
 
 Add the end-to-end run and `python -m cv_agent.eval` when they exist.
 

@@ -1,0 +1,74 @@
+line-length = 80
+indent-width = 4
+target-version = "py313"
+
+exclude = [
+    "third_party",
+]
+
+[lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "B",    # bugbear
+    "I",    # isort
+    "N",    # pep8-naming
+    "D",    # pydocstyle (Google convention, configured below)
+    "UP",   # pyupgrade
+    "SIM",  # flake8-simplify
+    "C4",   # flake8-comprehensions
+    "PT",   # pytest
+    "PL",   # pylint-like rules
+    "T20",  # flake8-print
+]
+
+ignore = [
+    # complexity: mirror pylint too-many-* disables
+    "PLR0911",  # too-many-return-statements
+    "PLR0912",  # too-many-branches
+    "PLR0913",  # too-many-arguments
+    "PLR0914",  # too-many-locals
+    "PLR0915",  # too-many-statements
+    "PLR0917",  # too-many-positional-arguments
+    # tests use unittest, not pytest (see CLAUDE.md)
+    "PT009",    # pytest-unittest-assertion
+    "PT027",    # pytest-unittest-raises-assertion
+    # simplify: no-else-return style
+    "SIM108",   # use ternary operator
+    "SIM114",   # combine if branches
+    "SIM115",   # use context manager
+    # whitespace
+    "W291",     # trailing whitespace
+    "W293",     # blank line contains whitespace
+    "W391",     # blank line at end of file
+    # docstrings: presence not enforced (mirror pylint disable)
+    "D100",     # missing module docstring
+    "D101",     # missing class docstring
+    "D102",     # missing method docstring
+    "D103",     # missing public function docstring
+    "D104",     # missing public package docstring
+    "D105",     # missing magic method docstring
+    "D106",     # missing public nested class docstring
+    "D107",     # missing __init__ docstring
+]
+
+[lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[lint.pydocstyle]
+convention = "google"
+
+[lint.isort]
+known-third-party = ["enchant", "absl"]
+
+[lint.flake8-quotes]
+inline-quotes = "single"
+multiline-quotes = "double"
+docstring-quotes = "double"
+avoid-escape = true
+
+[format]
+indent-style = "space"
+line-ending = "lf"
+quote-style = "single"
