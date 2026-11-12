@@ -109,3 +109,19 @@ alternative. The examples use synthetic data.
 - **Cost:** The hooks block some harmless commands, for example a commit message that
   contains a blocked word.
 - **Rejected:** Rules in `CLAUDE.md` only.
+
+## 8. The writer sees only confirmed facts
+
+- **Decision:** `write_bullets()` sends only the facts with status `confirmed` to the
+  writer agent. `check_bullets()` still checks the bullets against all stored facts.
+- **Why:** A fact that the writer does not see cannot leak into a bullet. A prompt rule
+  such as "cite only confirmed facts" is a request to the model. The filter is code.
+- **Example:** The store holds `F1` (confirmed) and `F2` (do_not_claim, a feature that
+  was planned but not built). The writer receives only `F1`. If a bullet cites `F2`,
+  the writer guessed the ID, and `check_bullets()` rejects the bullet with
+  `not_confirmed`.
+- **Cost:** The evaluation no longer tests whether the writer obeys a status. A planned
+  feature can still reach the CV in one way: the interviewer stores it as `confirmed`.
+  Only the Inflation metric can see this, and only when the judge compares the bullet
+  with the persona fact. Day 2 decides which fact the judge uses.
+- **Rejected:** Send all facts with their status, and rely on the prompt and the check.
