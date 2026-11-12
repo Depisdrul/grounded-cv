@@ -1,0 +1,10 @@
+# Private data and maintainer-only instructions. Never commit.
+private/
+CLAUDE.local.md
+.claude/settings.local.json
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.env
