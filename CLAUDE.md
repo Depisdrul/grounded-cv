@@ -107,8 +107,11 @@ single test, one end-to-end run, and `python -m cv_agent.eval`.
   product names.
 - Real interview data goes only in `private/`, which is gitignored. Do not read or
   edit `private/`. Project settings deny it.
-- Before any push, search the repository for the names in `private/blocklist.txt`. The
-  search runs locally and prints only file and line, never the matched name.
+- A local pre-commit hook (`.git/hooks/pre-commit`, not versioned) searches the staged
+  files for the names in `private/blocklist.txt` and blocks the commit on a match. It
+  prints only file names, never the matched name. A missing or empty blocklist also
+  blocks the commit. When a commit is blocked, ask the user to fix the files; do not
+  bypass the hook with `--no-verify`.
 
 ## Plan
 
@@ -121,7 +124,6 @@ single test, one end-to-end run, and `python -m cv_agent.eval`.
 
 - An interactive interview with a local model (Ollama), so that a user can run the tool
   on their own career without sending it to a cloud provider.
-- A pre-commit hook that runs the blocklist search.
 - Rebuild the orchestration in LangGraph (interview, save, coverage check, write, check),
   with the same PydanticAI models and the same evaluation suite. Compare the two versions
   on the same metrics.
