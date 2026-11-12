@@ -107,8 +107,14 @@ keep the results in `results/` so that runs can be compared.
 
 ## Commands
 
-No code exists yet. Add the real commands here after Day 1: install, unit tests, one
-single test, one end-to-end run, and `python -m cv_agent.eval`.
+```bash
+conda create -n cv-agent python=3.13 -y          # once
+conda run -n cv-agent python -m pip install -e .  # once, and after a dependency change
+conda run -n cv-agent python -m unittest discover -s tests             # all tests
+conda run -n cv-agent python -m unittest tests.test_check.CheckBulletsTest.test_bullet_without_fact_ids_fails  # one test
+```
+
+Add the end-to-end run and `python -m cv_agent.eval` when they exist.
 
 ## Privacy rules
 
