@@ -150,6 +150,8 @@ Add the end-to-end run and `python -m cv_agent.eval` when they exist.
   on the same metrics.
 - Career advice, only if someone defines how to evaluate it.
 - A portfolio page generated from the confirmed facts.
+- A GitHub Actions job that runs `scripts/check.sh` on each push. The pre-commit hook
+  is local: a clone does not get it, and `--no-verify` skips it.
 
 ## Writing
 
