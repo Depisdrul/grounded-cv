@@ -100,6 +100,29 @@ fact is not invented. Attribution would drop to 1 of 2.
 | Inflation | Do the bullets claim more than the facts allow? | Judge |
 | Grounding | Does each bullet cite facts that exist and are `confirmed`? | Code |
 
+## Models
+
+The model is a configuration value (`CV_AGENT_MODEL`). The code does not change between
+models.
+
+| Model | Used for | Why |
+|---|---|---|
+| Gemini (cloud, free tier) | Development runs, and the judge in every evaluation | Fast, and reliable with tool calls. The judge must be a strong model: a weak judge makes every metric noise. |
+| Ollama (local, small model) | The second model in the results table | Free, runs offline, needs no API key. The comparison shows how a small local model differs from a cloud model on faithfulness. |
+| Ollama (local) | A real interview about your own career | Real career data must not go to a cloud provider. A local model keeps it on your machine. |
+| Claude Haiku (cloud, paid API) | Optional: a third model, or a substitute if the Gemini free-tier rate limits slow the runs | Low cost per run. Not needed to run the project. |
+
+The judge stays the same model in all runs, so that results from different models can be
+compared.
+
+Limits of this choice:
+
+- The Gemini free tier has rate limits. A full evaluation run can be slow.
+- Free-tier data can be used by the provider to train its models. The committed data is
+  synthetic, so this is acceptable here. Do not send real career data to it.
+- A small local model may fail tool calls more often. That failure is part of what the
+  comparison measures.
+
 ## Glossary
 
 | Term | Meaning |

@@ -3,6 +3,8 @@
     "deny": [
       "Read(./private/**)",
       "Edit(./private/**)",
+      "Read(./.env)",
+      "Edit(./.env)",
       "Bash(git commit --no-verify*)",
       "Bash(git commit * --no-verify*)",
       "Bash(git commit -n*)",

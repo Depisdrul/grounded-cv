@@ -94,9 +94,13 @@ keep the results in `results/` so that runs can be compared.
 
 ## Stack
 
-- Python 3.12, PydanticAI, `pydantic-evals`.
-- Model: a configuration value. Run the same suite on two models and compare.
-  Preferred: Azure OpenAI through AI Foundry, if access exists. Otherwise Gemini.
+- Python 3.13 (conda env `cv-agent`), PydanticAI, `pydantic-evals`. Src layout:
+  `src/cv_agent/`.
+- Model: a configuration value (`CV_AGENT_MODEL`). Gemini (free tier) for development
+  and as the judge; a small Ollama model as the second model in the comparison; Claude
+  Haiku optional. The README section "Models" gives the reasons.
+- API keys live in `.env` (gitignored). Do not read or edit `.env`; project settings
+  deny it. The pre-commit hook blocks staged Gemini, Anthropic and Hugging Face keys.
 - Tracing: OpenTelemetry from PydanticAI. Local Jaeger in Docker by default. Logfire
   only for synthetic data.
 - Tests: `unittest`, not pytest. Follow the testing rules in the global `CLAUDE.md`.
