@@ -30,7 +30,7 @@ writer = Agent(
 
 
 def write_bullets(model: Model | str, facts: Iterable[Fact]) -> list[Bullet]:
-    """Write bullets from the facts with status `confirmed`.
+    """Write bullets from the facts with status `confirmed` only.
 
     Other facts are not sent to the model.
     """
