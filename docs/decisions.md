@@ -141,3 +141,19 @@ alternative. The examples use synthetic data.
 - **Cost:** An answer that the agent stores as no fact counts as empty, even when it
   carries context, for example the list of employers.
 - **Rejected:** Match "I don't know" in the answer text. Human answers vary too much.
+
+## 10. Prompts are Markdown files, with a test that keeps them in sync
+
+- **Decision:** The agent instructions are in `src/cv_agent/prompts/*.md`.
+  `tests/test_prompts.py` checks that the prompts name every `Status` and `Actor`
+  value, the `save_fact` tool and the `fact_ids` field.
+- **Why:** A prompt change is an experiment. The evaluation runs again after each
+  one, so a prompt change must be its own diff. Later, the results can record which
+  prompt file produced them.
+- **Example:** Rename `Status.TO_CONFIRM` to `"unconfirmed"` in code only. The model
+  still reads "to_confirm" in the prompt and stores a value that fails validation.
+  The sync test fails first.
+- **Cost:** The test checks that each name appears, not that its definition is
+  right. A deleted definition passes when the name appears elsewhere in the prompt.
+- **Rejected:** Prompts as Python strings next to the agent: the code identifiers
+  are close, but a prompt change mixes with code changes in one file.
