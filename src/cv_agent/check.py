@@ -11,13 +11,16 @@ from cv_agent.models import Bullet, Fact, Status
 class Reason(StrEnum):
     """Why a bullet fails the check."""
 
-    NO_FACT_IDS = "no_fact_ids"
-    UNKNOWN_ID = "unknown_id"
-    NOT_CONFIRMED = "not_confirmed"
+    NO_FACT_IDS = 'no_fact_ids'
+    UNKNOWN_ID = 'unknown_id'
+    NOT_CONFIRMED = 'not_confirmed'
 
 
 class BulletCheck(BaseModel):
-    """The result for one bullet. `reason` and `fact_id` are None when it passes."""
+    """The result for one bullet.
+
+    `reason` and `fact_id` are None when the bullet passes.
+    """
 
     bullet: Bullet
     passed: bool
@@ -25,8 +28,10 @@ class BulletCheck(BaseModel):
     fact_id: str | None = None
 
 
-def check_bullets(bullets: Iterable[Bullet], facts: Iterable[Fact]) -> list[BulletCheck]:
-    """Check that each bullet cites at least one fact, and only known, confirmed facts.
+def check_bullets(
+    bullets: Iterable[Bullet], facts: Iterable[Fact]
+) -> list[BulletCheck]:
+    """Check that each bullet cites at least one fact, all known and confirmed.
 
     Returns one result per bullet, in input order. A failing bullet reports its
     first failure only.
@@ -37,11 +42,23 @@ def check_bullets(bullets: Iterable[Bullet], facts: Iterable[Fact]) -> list[Bull
 
 def _check_one(bullet: Bullet, facts_by_id: dict[str, Fact]) -> BulletCheck:
     if not bullet.fact_ids:
-        return BulletCheck(bullet=bullet, passed=False, reason=Reason.NO_FACT_IDS)
+        return BulletCheck(
+            bullet=bullet, passed=False, reason=Reason.NO_FACT_IDS
+        )
     for fact_id in bullet.fact_ids:
         fact = facts_by_id.get(fact_id)
         if fact is None:
-            return BulletCheck(bullet=bullet, passed=False, reason=Reason.UNKNOWN_ID, fact_id=fact_id)
+            return BulletCheck(
+                bullet=bullet,
+                passed=False,
+                reason=Reason.UNKNOWN_ID,
+                fact_id=fact_id,
+            )
         if fact.status is not Status.CONFIRMED:
-            return BulletCheck(bullet=bullet, passed=False, reason=Reason.NOT_CONFIRMED, fact_id=fact_id)
+            return BulletCheck(
+                bullet=bullet,
+                passed=False,
+                reason=Reason.NOT_CONFIRMED,
+                fact_id=fact_id,
+            )
     return BulletCheck(bullet=bullet, passed=True)

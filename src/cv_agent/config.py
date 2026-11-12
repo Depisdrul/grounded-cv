@@ -7,9 +7,9 @@ before it reads the configuration; this module only reads the environment.
 
 import os
 
-DEFAULT_MODEL = "google-gla:gemini-2.5-flash"
+DEFAULT_MODEL = 'google-gla:gemini-2.5-flash'
 
 
 def model_name() -> str:
-    """Return `CV_AGENT_MODEL`, or `DEFAULT_MODEL` when it is not set or empty."""
-    return os.environ.get("CV_AGENT_MODEL") or DEFAULT_MODEL
+    """Return `CV_AGENT_MODEL`, or `DEFAULT_MODEL` when it is unset or empty."""
+    return os.environ.get('CV_AGENT_MODEL') or DEFAULT_MODEL

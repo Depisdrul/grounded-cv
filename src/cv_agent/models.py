@@ -8,30 +8,35 @@ from pydantic import BaseModel, ConfigDict, Field
 class Actor(StrEnum):
     """Who did the work."""
 
-    ME = "me"
-    TEAM = "team"
-    COLLEAGUE = "colleague"
+    ME = 'me'
+    TEAM = 'team'
+    COLLEAGUE = 'colleague'
 
 
 class Status(StrEnum):
     """Whether a fact may appear on the CV."""
 
-    CONFIRMED = "confirmed"
-    TO_CONFIRM = "to_confirm"
-    DO_NOT_CLAIM = "do_not_claim"
+    CONFIRMED = 'confirmed'
+    TO_CONFIRM = 'to_confirm'
+    DO_NOT_CLAIM = 'do_not_claim'
 
 
 class _Strict(BaseModel):
-    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
 
 
 class NewFact(_Strict):
-    """A fact before the store gives it an ID. The interviewer's save_fact tool takes this."""
+    """A fact before the store gives it an ID.
+
+    The interviewer's save_fact tool takes this.
+    """
 
     employer: str = Field(min_length=1)
     role: str = Field(min_length=1)
     period: str = Field(min_length=1)
-    action: str = Field(min_length=1, description="One sentence: what was done.")
+    action: str = Field(
+        min_length=1, description='One sentence: what was done.'
+    )
     actor: Actor
     status: Status
     source: str | None = None

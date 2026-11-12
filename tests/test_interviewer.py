@@ -20,7 +20,7 @@ def user_prompts(history):
     return [
         part.content
         for message in history
-        for part in getattr(message, "parts", [])
+        for part in getattr(message, 'parts', [])
         if isinstance(part, UserPromptPart)
     ]
 
@@ -29,52 +29,64 @@ class RunInterviewTest(unittest.TestCase):
     def setUp(self):
         tmp_dir = tempfile.TemporaryDirectory()
         self.addCleanup(tmp_dir.cleanup)
-        self.store = FactStore(Path(tmp_dir.name) / "facts.json")
+        self.store = FactStore(Path(tmp_dir.name) / 'facts.json')
 
     def test_save_fact_stores_the_fact_from_the_answer(self):
         model = scripted_model(
-            ModelResponse(parts=[ToolCallPart("final_result_Question", {"text": "What did you build?"})]),
             ModelResponse(
                 parts=[
                     ToolCallPart(
-                        "save_fact",
+                        'final_result_Question', {'text': 'What did you build?'}
+                    )
+                ]
+            ),
+            ModelResponse(
+                parts=[
+                    ToolCallPart(
+                        'save_fact',
                         {
-                            "fact": {
-                                "employer": "Example Freight Ltd",
-                                "role": "Data engineer",
-                                "period": "2021-2023",
-                                "action": "Moved the servers to the cloud.",
-                                "actor": "team",
-                                "status": "to_confirm",
-                                "source": "interview turn 1",
+                            'fact': {
+                                'employer': 'Example Freight Ltd',
+                                'role': 'Data engineer',
+                                'period': '2021-2023',
+                                'action': 'Moved the servers to the cloud.',
+                                'actor': 'team',
+                                'status': 'to_confirm',
+                                'source': 'interview turn 1',
                             }
                         },
                     )
                 ]
             ),
-            ModelResponse(parts=[ToolCallPart("final_result_Done", {"reason": "No more topics."})]),
+            ModelResponse(
+                parts=[
+                    ToolCallPart(
+                        'final_result_Done', {'reason': 'No more topics.'}
+                    )
+                ]
+            ),
         )
         questions = []
 
         def answer(question):
             questions.append(question)
-            return "We moved the servers to the cloud."
+            return 'We moved the servers to the cloud.'
 
         run_interview(model, self.store, answer, max_questions=5)
 
-        self.assertEqual(questions, ["What did you build?"])
+        self.assertEqual(questions, ['What did you build?'])
         self.assertEqual(
             self.store.all(),
             [
                 Fact(
-                    id="F1",
-                    employer="Example Freight Ltd",
-                    role="Data engineer",
-                    period="2021-2023",
-                    action="Moved the servers to the cloud.",
+                    id='F1',
+                    employer='Example Freight Ltd',
+                    role='Data engineer',
+                    period='2021-2023',
+                    action='Moved the servers to the cloud.',
                     actor=Actor.TEAM,
                     status=Status.TO_CONFIRM,
-                    source="interview turn 1",
+                    source='interview turn 1',
                 )
             ],
         )
@@ -82,11 +94,23 @@ class RunInterviewTest(unittest.TestCase):
     def test_last_answer_reaches_the_agent_when_the_question_limit_is_hit(self):
         def ask_until_only_done_is_allowed(messages, info):
             output_tool_names = [tool.name for tool in info.output_tools]
-            if "final_result_Question" in output_tool_names:
-                return ModelResponse(parts=[ToolCallPart("final_result_Question", {"text": "Anything else?"})])
-            return ModelResponse(parts=[ToolCallPart(output_tool_names[0], {"reason": "Limit reached."})])
+            if 'final_result_Question' in output_tool_names:
+                return ModelResponse(
+                    parts=[
+                        ToolCallPart(
+                            'final_result_Question', {'text': 'Anything else?'}
+                        )
+                    ]
+                )
+            return ModelResponse(
+                parts=[
+                    ToolCallPart(
+                        output_tool_names[0], {'reason': 'Limit reached.'}
+                    )
+                ]
+            )
 
-        answers = iter(["First answer.", "Second answer."])
+        answers = iter(['First answer.', 'Second answer.'])
 
         history = run_interview(
             FunctionModel(ask_until_only_done_is_allowed),
@@ -97,9 +121,13 @@ class RunInterviewTest(unittest.TestCase):
 
         self.assertEqual(
             user_prompts(history),
-            ["Start the interview.", "First answer.", "Second answer." + _LAST_ANSWER_NOTE],
+            [
+                'Start the interview.',
+                'First answer.',
+                'Second answer.' + _LAST_ANSWER_NOTE,
+            ],
         )
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()

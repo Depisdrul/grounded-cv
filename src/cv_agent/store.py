@@ -23,7 +23,7 @@ class FactStore:
             self._facts = _FACTS.validate_json(path.read_bytes())
 
     def add(self, new_fact: NewFact) -> Fact:
-        fact = Fact(id=f"F{len(self._facts) + 1}", **new_fact.model_dump())
+        fact = Fact(id=f'F{len(self._facts) + 1}', **new_fact.model_dump())
         self._facts.append(fact)
         self._write()
         return fact
@@ -37,6 +37,6 @@ class FactStore:
     def _write(self) -> None:
         # Write a temporary file, then replace: a crash during the write
         # leaves the previous file intact.
-        tmp_path = self.path.with_suffix(self.path.suffix + ".tmp")
+        tmp_path = self.path.with_suffix(self.path.suffix + '.tmp')
         tmp_path.write_bytes(_FACTS.dump_json(self._facts, indent=2))
         os.replace(tmp_path, self.path)
