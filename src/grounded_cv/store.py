@@ -1,6 +1,7 @@
 """Fact store: a JSON file that holds the facts of one interview."""
 
 import os
+import time
 from pathlib import Path
 
 from pydantic import TypeAdapter
@@ -8,6 +9,9 @@ from pydantic import TypeAdapter
 from grounded_cv.models import Fact, NewFact
 
 _FACTS = TypeAdapter(list[Fact])
+
+_REPLACE_ATTEMPTS = 5
+_REPLACE_WAIT_SECONDS = 0.05
 
 
 class FactStore:
@@ -29,14 +33,19 @@ class FactStore:
             self._facts = _FACTS.validate_json(path.read_bytes())
 
     def add(self, new_fact: NewFact) -> Fact:
-        """Give the fact the next ID, store it and write the file.
+        """Give the fact the next ID, write the file, then store it in memory.
 
         Returns:
             The stored fact, with its new ID.
+
+        Raises:
+            PermissionError: The file write failed. The store and the file
+                keep the facts they had before the call.
         """
         fact = Fact(id=f'F{len(self._facts) + 1}', **new_fact.model_dump())
-        self._facts.append(fact)
-        self._write()
+        facts = [*self._facts, fact]
+        self._write(facts)
+        self._facts = facts
         return fact
 
     def get(self, fact_id: str) -> Fact | None:
@@ -47,9 +56,28 @@ class FactStore:
         """Return a copy of all facts, in the order of storage."""
         return list(self._facts)
 
-    def _write(self) -> None:
+    def _write(self, facts: list[Fact]) -> None:
         # Write a temporary file, then replace: a crash during the write
         # leaves the previous file intact.
         tmp_path = self.path.with_suffix(self.path.suffix + '.tmp')
-        tmp_path.write_bytes(_FACTS.dump_json(self._facts, indent=2))
-        os.replace(tmp_path, self.path)
+        tmp_path.write_bytes(_FACTS.dump_json(facts, indent=2))
+        _replace_with_retry(tmp_path, self.path)
+
+
+def _replace_with_retry(src: Path, dst: Path) -> None:
+    """Replace `dst` with `src`, and retry while Windows denies access.
+
+    On Windows, os.replace raises PermissionError while another process, for
+    example a virus scanner, holds `dst` open. The lock lasts milliseconds.
+
+    Raises:
+        PermissionError: The last of `_REPLACE_ATTEMPTS` attempts failed.
+    """
+    for attempt in range(1, _REPLACE_ATTEMPTS + 1):
+        try:
+            os.replace(src, dst)
+            return
+        except PermissionError:
+            if attempt == _REPLACE_ATTEMPTS:
+                raise
+            time.sleep(_REPLACE_WAIT_SECONDS)

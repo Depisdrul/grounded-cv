@@ -173,11 +173,10 @@ Add the end-to-end run and `python -m grounded_cv.eval` when they exist.
 
 ## Later
 
-- `FactStore._write`: on Windows, `os.replace` raises `PermissionError` when another
-  process (for example a virus scanner) holds `facts.json` open. About 1 test run in
-  10 fails. Fix: retry `os.replace` a few times on `PermissionError`, with a short
-  wait, then raise. Add a test that patches `os.replace` to fail twice. Do not write
-  the file directly: a crash during the write would leave a half-written file.
+- Shared git hooks: move the pre-commit and commit-msg hooks to a versioned `hooks/`
+  folder, set with `git config core.hooksPath hooks`. Both hooks fail closed without
+  `private/blocklist.txt`, which a clone does not have, so they must first skip the
+  name check when the list is missing outside the maintainer's machine.
 - An interactive interview with a local model (Ollama), so that a user can run the tool
   on their own career without sending it to a cloud provider.
 - Rebuild the orchestration in LangGraph (interview, save, coverage check, write, check),

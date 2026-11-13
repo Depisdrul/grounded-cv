@@ -157,3 +157,20 @@ alternative. The examples use synthetic data.
   right. A deleted definition passes when the name appears elsewhere in the prompt.
 - **Rejected:** Prompts as Python strings next to the agent: the code identifiers
   are close, but a prompt change mixes with code changes in one file.
+
+## 11. The fact store retries the file replace on Windows
+
+- **Decision:** `FactStore` writes a temporary file, then replaces `facts.json` with
+  it. On `PermissionError`, it retries the replace up to 5 times, 50 ms apart, then
+  raises.
+  `add` changes the facts in memory only after the write succeeds.
+- **Why:** On Windows, the replace fails while another process, for example a virus
+  scanner, holds `facts.json` open. Without the retry, about 1 test run in 10
+  failed, and one failed save stops the interview.
+- **Example:** The interviewer saves `F4`. A scanner is still reading the file from
+  `F3`. The first replace fails, the second succeeds 50 ms later, and the interview
+  continues.
+- **Cost:** A lock that lasts more than about 200 ms still raises. The store and the
+  file keep their previous facts, but the interview stops.
+- **Rejected:** Write `facts.json` directly. There is no replace to fail, but a crash
+  during the write leaves a half-written file that the store cannot load.

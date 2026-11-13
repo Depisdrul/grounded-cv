@@ -1,6 +1,8 @@
+import os
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from grounded_cv.models import Actor, Fact, NewFact, Status
 from grounded_cv.store import FactStore
@@ -15,6 +17,23 @@ def make_new_fact(action):
         actor=Actor.ME,
         status=Status.CONFIRMED,
     )
+
+
+# Read before any test patches grounded_cv.store.os.replace, which is the
+# same object as os.replace in every module.
+REAL_REPLACE = os.replace
+
+
+def deny_access_then_replace(failure_count):
+    """Return an os.replace that denies access `failure_count` times."""
+    errors = [PermissionError('Access is denied')] * failure_count
+
+    def replace(src, dst):
+        if errors:
+            raise errors.pop()
+        REAL_REPLACE(src, dst)
+
+    return replace
 
 
 class FactStoreTest(unittest.TestCase):
@@ -77,6 +96,57 @@ class FactStoreTest(unittest.TestCase):
         store.add(make_new_fact('Wrote the data export.'))
 
         self.assertIsNone(store.get('F9'))
+
+    def test_add_retries_until_the_last_attempt_succeeds(self):
+        store = FactStore(self.path)
+
+        with (
+            mock.patch('grounded_cv.store._REPLACE_ATTEMPTS', 3),
+            mock.patch('grounded_cv.store.time.sleep', autospec=True) as sleep,
+            mock.patch(
+                'grounded_cv.store.os.replace',
+                autospec=True,
+                side_effect=deny_access_then_replace(failure_count=2),
+            ) as replace,
+        ):
+            store.add(make_new_fact('Wrote the data export.'))
+
+        self.assertEqual(replace.call_count, 3)
+        self.assertEqual(sleep.call_count, 2)
+        self.assertEqual(
+            [fact.action for fact in FactStore(self.path).all()],
+            ['Wrote the data export.'],
+        )
+
+    def test_add_that_fails_leaves_store_and_file_unchanged(self):
+        store = FactStore(self.path)
+        store.add(make_new_fact('Wrote the data export.'))
+
+        with (
+            mock.patch('grounded_cv.store._REPLACE_ATTEMPTS', 3),
+            mock.patch('grounded_cv.store.time.sleep', autospec=True) as sleep,
+            mock.patch(
+                'grounded_cv.store.os.replace',
+                autospec=True,
+                side_effect=PermissionError('Access is denied'),
+            ) as replace,
+            self.assertRaises(PermissionError),
+        ):
+            store.add(make_new_fact('Moved the servers to the cloud.'))
+
+        self.assertEqual(replace.call_count, 3)
+        self.assertEqual(sleep.call_count, 2)
+        self.assertEqual(
+            [fact.action for fact in store.all()], ['Wrote the data export.']
+        )
+        self.assertEqual(
+            [fact.action for fact in FactStore(self.path).all()],
+            ['Wrote the data export.'],
+        )
+        self.assertEqual(
+            store.add(make_new_fact('Moved the servers to the cloud.')).id,
+            'F2',
+        )
 
 
 if __name__ == '__main__':
