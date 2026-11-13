@@ -187,3 +187,16 @@ alternative. The examples use synthetic data.
   `FileNotFoundError` on `facts.json.tmp`.
 - **Rejected:** Mark the tool as sequential in the agent. That fixes this agent only;
   the lock keeps the store correct for any caller.
+
+## 13. `colleague` covers another group, not only another person
+
+- **Decision:** `team` is a group that includes the person. `colleague` is another
+  person or another group that did the work without the person.
+- **Why:** The first run with a local model stored "The platform team moved the
+  servers" as `colleague`. The old definitions allowed `team` and `colleague` for
+  that fact, so Attribution could not score it.
+- **Example:** "The platform team moved the servers; I wrote the database scripts."
+  The servers fact is `colleague`; the scripts fact is `me`.
+- **Rejected:** A fourth actor value, `other_team`. It changes the model, the
+  prompts and the tests, and the trap it serves ("not my work") is already
+  `actor != me`.

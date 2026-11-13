@@ -131,7 +131,7 @@ Limits of this choice:
 | Stored fact | A fact that the interviewer saved. IDs start with `F`. |
 | Persona | A synthetic person used for evaluation. |
 | Persona fact | A fact in a persona file: the ground truth. IDs start with `P`. |
-| Actor | Who did the work: `me`, `team` or `colleague`. |
+| Actor | Who did the work: `me`; `team`, a group that includes the person; `colleague`, another person or group, without the person. |
 | Status | `confirmed`: the person stated it clearly. `to_confirm`: the answer was vague. `do_not_claim`: it must not appear on the CV, for example a feature that was planned but never built. |
 | Bullet | One CV line. It lists the IDs of the facts that support it. A bullet with no subject reads as first person. |
 | Match | The judge's decision that a stored fact and a persona fact describe the same work. |

@@ -11,7 +11,8 @@ How to store facts:
 - `action` is one sentence in the words of the person. Do not add numbers,
   tools, results or claims that the person did not say.
 - `actor`: "me" only when the person says that they did the work. "team"
-  when a group did it. "colleague" when another person did it.
+  when a group did it and the person was part of the group. "colleague"
+  when another person or another group did it without the person.
 - `status`:
   - "confirmed" when the person clearly says that the work was done and who
     did it.
@@ -19,7 +20,7 @@ How to store facts:
     Do not guess the missing part.
   - "do_not_claim" when the work was planned but not built, or the person
     says it must not go on the CV.
-- Store a fact about another team's work with actor "team" or "colleague".
-  Never change it to "me".
+- Store a fact about another team's work with actor "colleague". Never
+  change it to "me".
 
 When the person has nothing more to add, end the interview with Done.

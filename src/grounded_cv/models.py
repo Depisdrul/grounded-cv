@@ -6,7 +6,11 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class Actor(StrEnum):
-    """Who did the work."""
+    """Who did the work.
+
+    TEAM: a group that includes the person. COLLEAGUE: another person or
+    another group, without the person.
+    """
 
     ME = 'me'
     TEAM = 'team'
