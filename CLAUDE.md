@@ -92,6 +92,10 @@ evaluation judge maps stored facts to persona facts; the two ID sets never match
   `google-gla:gemini-2.5-flash`). It does not load `.env`; the caller loads it first.
 - Tests script the model with `pydantic_ai.models.function.FunctionModel`. No test
   calls a real model.
+- `personas/*.json` are the evaluation cases (`persona.Persona`). Each fact has the
+  truth (`action`, `actor`, `status`), an optional `first_answer` that the simulated
+  interviewee says first, and an optional `trap` type. `tests/test_persona.py`
+  validates every committed file.
 
 `docs/decisions.md` explains each design decision with an example. Read it before you
 change the metrics or the rules.
@@ -138,6 +142,7 @@ PYDANTIC_AI_NO_BANNER=1 conda run -n grounded-cv python -m unittest discover -s 
 PYDANTIC_AI_NO_BANNER=1 conda run -n grounded-cv python -m unittest tests.test_check.CheckBulletsTest.test_bullet_without_fact_ids_fails  # one test
 conda run -n grounded-cv ruff format .                                    # format
 PYTHON=~/AppData/Local/miniconda3/envs/grounded-cv/python.exe scripts/check.sh  # lint, format check, tests
+OLLAMA_BASE_URL=http://localhost:11434/v1 conda run -n grounded-cv python scripts/smoke_interview.py ollama:qwen3.5:4b  # 4-question interview with scripted answers
 ```
 
 A commit must pass `scripts/check.sh`. The local pre-commit hook runs it after the

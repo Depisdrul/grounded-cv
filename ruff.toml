@@ -55,6 +55,7 @@ ignore = [
 
 [lint.per-file-ignores]
 "__init__.py" = ["F401"]
+"scripts/*.py" = ["T201"]  # command-line scripts print their output
 
 [lint.pydocstyle]
 convention = "google"
