@@ -157,14 +157,26 @@ Install Python 3.13 and the project:
 python -m pip install -e ".[dev]"
 ```
 
-Start Ollama with `qwen3.5:4b` available. Put `GEMINI_API_KEY` in the
-environment or in a local `.env` file. Do not commit the key. Then run:
+Start Ollama and create the local model once:
+
+```bash
+ollama pull qwen3.5:4b
+ollama create qwen3.5-4b-16k -f ollama/Modelfile
+```
+
+The Modelfile sets a context of 16384 tokens. Ollama's default context of
+4096 tokens is too small: the interview history and the model's thinking
+fill it within a few questions. Check the context with `ollama ps` while the
+model is loaded (column `CONTEXT`). The model needs about 3.7 GB of memory.
+
+Put `GEMINI_API_KEY` in the environment or in a local `.env` file. Do not
+commit the key. Then run:
 
 ```bash
 python -m grounded_cv.eval
 ```
 
-The default product model is `ollama:qwen3.5:4b`. The simulated interviewee
+The default product model is `ollama:qwen3.5-4b-16k`. The simulated interviewee
 and judge use `google:gemini-3.1-flash-lite`. Override them with
 `--product-model`, `--interviewee-model` and `--judge-model`. Ollama uses
 `OLLAMA_BASE_URL` when set and otherwise `http://localhost:11434/v1`.

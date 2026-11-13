@@ -1,0 +1,5 @@
+# Qwen3.5 4B with a 16384-token context. Ollama defaults to 4096, which an
+# 8-question interview fills. Create it with:
+#   ollama create qwen3.5-4b-16k -f ollama/Modelfile
+FROM qwen3.5:4b
+PARAMETER num_ctx 16384

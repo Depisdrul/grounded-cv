@@ -6,6 +6,7 @@ from pydantic_ai.messages import ModelResponse, TextPart, ToolCallPart
 from pydantic_ai.models.function import FunctionModel
 
 from grounded_cv.eval import (
+    _INTERVIEWEE,
     BulletVerdict,
     FactMatch,
     FailureType,
@@ -504,6 +505,19 @@ class IntervieweeViewTest(unittest.TestCase):
                 }
             ],
         )
+
+
+class IntervieweeAgentTest(unittest.TestCase):
+    def test_interviewee_asks_for_no_reasoning(self):
+        requests = []
+
+        def reply(messages, info):
+            requests.append(info.model_settings)
+            return ModelResponse(parts=[TextPart("I don't know.")])
+
+        _INTERVIEWEE.run_sync('What did you do?', model=FunctionModel(reply))
+
+        self.assertEqual(requests[0].get('openai_reasoning_effort'), 'none')
 
 
 if __name__ == '__main__':

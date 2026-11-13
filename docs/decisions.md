@@ -273,3 +273,46 @@ alternative. The examples use synthetic data.
   with the quota error. No command re-judges a saved result yet.
 - **Rejected:** Raise and save nothing. The scores stay strict (no score without a
   valid judge report), but the interview is lost.
+
+## 19. The simulated interviewee does not think
+
+- **Decision:** The interviewee agent sends `openai_reasoning_effort='none'`. It
+  gets the persona as compact JSON. The interviewer and the judge keep the
+  default of their model.
+- **Why:** The interviewee only looks up answers in a list, so reasoning adds
+  cost and no quality. Qwen3.5 4B on Ollama thinks by default, and its context
+  window is 4096 tokens. With the persona in the prompt (about 2000 tokens), the
+  thinking used the rest of the context, and the first answer failed with
+  `OutputTokenLimitExceeded`. PydanticAI's unified `thinking=False` setting does
+  not reach Ollama. Other providers ignore `openai_` keys.
+- **Example:** "In one sentence: what is a CV?" to `qwen3.5:4b`: with thinking,
+  1092 output tokens and 228 s; with `openai_reasoning_effort='none'`, 41 tokens
+  and 9 s.
+- **Rejected:**
+  - A larger context (`OLLAMA_CONTEXT_LENGTH`) with thinking on. It fixes the
+    failure but keeps each answer minutes long, for no gain.
+  - A limit on output tokens (`max_tokens`). The limit counts thinking and answer
+    together, so a long thought ends with no answer: the same failure.
+- **Interviewer:** The interviewer is the model under test, so it keeps its
+  default. Thinking on and thinking off are two separate configurations in the
+  results table, each scored on the same personas.
+- **Also rejected:** A limit on thinking with `reasoning_effort='low'`. On the
+  same question it gave 896 output tokens: no hard cap, and within the spread
+  of the default (1092 to 1671).
+
+## 20. The local model sets its context in a committed Modelfile
+
+- **Decision:** `ollama/Modelfile` builds `qwen3.5-4b-16k` from `qwen3.5:4b`
+  with `num_ctx 16384`. The evaluation and the smoke script use
+  `ollama:qwen3.5-4b-16k`.
+- **Why:** Ollama gives a model a context of 4096 tokens by default. The
+  interviewer re-sends the whole interview on each call and thinks before it
+  answers, so an 8-question interview does not fit. The OpenAI-compatible API
+  that PydanticAI uses cannot set the context per request.
+- **Example:** `OLLAMA_CONTEXT_LENGTH=16384` was saved in the user environment,
+  and Ollama was restarted. `ollama ps` still showed 4096. With the Modelfile
+  variant, `ollama ps` shows 16384.
+- **Rejected:** The `OLLAMA_CONTEXT_LENGTH` variable or the context setting of
+  the Ollama app. They depend on each machine and do not show in the results.
+  The model name is saved in each result file, so the context size is recorded
+  with every run.

@@ -5,7 +5,7 @@ an actor and a status. The answers are synthetic. The facts go to a
 temporary file and are printed at the end.
 
 Usage (from the repository root):
-    python scripts/smoke_interview.py ollama:qwen3.5:4b
+    python scripts/smoke_interview.py ollama:qwen3.5-4b-16k
     python scripts/smoke_interview.py google:gemini-3.1-flash-lite
 
 An Ollama model needs OLLAMA_BASE_URL, for example

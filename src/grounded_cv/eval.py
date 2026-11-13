@@ -24,6 +24,7 @@ from pydantic import Field
 from pydantic_ai import Agent
 from pydantic_ai.messages import ModelMessage
 from pydantic_ai.models import Model
+from pydantic_ai.models.openai import OpenAIChatModelSettings
 from pydantic_evals import Case, Dataset
 
 from grounded_cv.check import BulletCheckResult, check_bullets
@@ -37,7 +38,7 @@ from grounded_cv.writer import write_bullets
 
 logger = logging.getLogger(__name__)
 
-LOCAL_MODEL = 'ollama:qwen3.5:4b'
+LOCAL_MODEL = 'ollama:qwen3.5-4b-16k'
 PROMPT_NAMES = ('interviewer', 'writer', 'interviewee', 'judge')
 
 
@@ -116,14 +117,20 @@ class RunResult(StrictModel):
     prompt_sha256: dict[str, str]
 
 
-_INTERVIEWEE = Agent(instructions=load_prompt('interviewee'))
+# No thinking: on Ollama, a thinking model fills its context before it
+# answers. `thinking=False` does not reach Ollama; this key does, and other
+# providers ignore it. See docs/decisions.md, entry 19.
+_INTERVIEWEE = Agent(
+    instructions=load_prompt('interviewee'),
+    model_settings=OpenAIChatModelSettings(openai_reasoning_effort='none'),
+)
 _JUDGE = Agent(output_type=JudgeReport, instructions=load_prompt('judge'))
 
 _INTERVIEWEE_FIELDS = {'employer', 'role', 'period', 'action', 'first_answer'}
 
 
 def build_interviewee_view(persona: Persona) -> str:
-    """Return the persona as JSON, without the labels that reveal the traps.
+    """Return the persona as compact JSON, without the trap labels.
 
     The interviewee does not see `id`, `actor`, `status`, `source` or
     `trap`. A label such as "do_not_claim" prompts a model to state the
@@ -134,7 +141,7 @@ def build_interviewee_view(persona: Persona) -> str:
             fact.model_dump(mode='json', include=_INTERVIEWEE_FIELDS)
             for fact in persona.facts
         ],
-        indent=2,
+        separators=(',', ':'),
     )
 
 
@@ -233,7 +240,7 @@ def run_case(
     """Run one interview, write the bullets, and judge them.
 
     Model arguments are PydanticAI models or names such as
-    `ollama:qwen3.5:4b`. The result records each model by name.
+    `ollama:qwen3.5-4b-16k`. The result records each model by name.
 
     A failed judge step does not raise: the result keeps the interview and
     records the error in `judge_error`. A failed interview or writer step

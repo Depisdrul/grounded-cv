@@ -142,7 +142,8 @@ PYDANTIC_AI_NO_BANNER=1 conda run -n grounded-cv python -m unittest discover -s 
 PYDANTIC_AI_NO_BANNER=1 conda run -n grounded-cv python -m unittest tests.test_check.CheckBulletsTest.test_bullet_without_fact_ids_fails  # one test
 conda run -n grounded-cv ruff format .                                    # format
 PYTHON=~/AppData/Local/miniconda3/envs/grounded-cv/python.exe scripts/check.sh  # lint, format check, tests
-OLLAMA_BASE_URL=http://localhost:11434/v1 conda run -n grounded-cv python scripts/smoke_interview.py ollama:qwen3.5:4b  # 4-question interview with scripted answers
+ollama create qwen3.5-4b-16k -f ollama/Modelfile                          # once: local model with a 16384-token context
+OLLAMA_BASE_URL=http://localhost:11434/v1 conda run -n grounded-cv python scripts/smoke_interview.py ollama:qwen3.5-4b-16k  # 4-question interview with scripted answers
 ```
 
 A commit must pass `scripts/check.sh`. The local pre-commit hook runs it after the
@@ -153,7 +154,7 @@ Run the evaluation (`--help` lists the options). `conda run` holds all output un
 process ends; `--no-capture-output` shows the progress log live:
 
 ```bash
-conda run --no-capture-output -n grounded-cv python -m grounded_cv.eval --interviewee-model ollama:qwen3.5:4b --max-questions 8
+conda run --no-capture-output -n grounded-cv python -m grounded_cv.eval --interviewee-model ollama:qwen3.5-4b-16k --max-questions 8
 ```
 
 Each case is saved to `results/` as soon as it ends. A judge failure (for example an
@@ -197,6 +198,9 @@ interview kept, and the command exits with code 1.
 - Rebuild the orchestration in LangGraph (interview, save, coverage check, write, check),
   with the same PydanticAI models and the same evaluation suite. Compare the two versions
   on the same metrics.
+- Interviewer thinking on and off as two configurations in the results table
+  (`docs/decisions.md`, entry 19). It needs a CLI option that passes the model
+  settings to the interviewer.
 - Career advice, only if someone defines how to evaluate it.
 - A portfolio page generated from the confirmed facts.
 - A GitHub Actions job that runs `scripts/check.sh` on each push. The pre-commit hook
