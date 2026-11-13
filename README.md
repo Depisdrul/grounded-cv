@@ -6,11 +6,39 @@ its source?**
 
 ## Results
 
-_To fill after the first evaluation run._
+**Example run, not a benchmark.** One persona (22 facts, 12 trap types), one
+run per setup, a small judge. The run shows that the pipeline works end to end
+and what the metrics catch. The differences between the two rows are not
+evidence: a small model gives a different interview on each run.
 
-| Model | Recall | Precision | Attribution | Inflation | Grounding |
-|---|---|---|---|---|---|
-| | | | | | |
+Product: `qwen3.5-4b-16k` on Ollama (laptop CPU). Simulated interviewee: the
+same model, thinking off. Judge: `gemini-3.1-flash-lite`. Persona:
+`personas/p1_traps.json`, at most 8 questions.
+
+| Product setup | Questions | Facts | Bullets | Recall | Precision | Attribution | Inflation | Grounding |
+|---|---|---|---|---|---|---|---|---|
+| Qwen, thinking on | 5 | 12 | 8 | 0.55 | 1.00 | 0.92 | 0.13 (1 status) | 1.00 |
+| Qwen, thinking off | 5 | 24 | 4 | 0.86 | 0.83 | 0.75 | 0.50 (2 status, 1 actor, 1 technology) | 1.00 |
+
+What the run shows:
+
+- **The trap catches a real failure.** With thinking on, the interviewer stored
+  a retry queue that was designed but never built as `confirmed`. The writer
+  turned it into "Designed a retry queue for failed SMS reminders". The code
+  check passed it; the judge marked it as a `status` failure.
+- **Grounding alone says nothing about faithfulness.** With thinking off, the
+  writer produced 4 role headings ("Software Developer at Example Rail Services
+  (2015–2017)"), each citing 3 to 8 facts. All pass the code check.
+- **Attribution fails without thinking.** With thinking off, the interviewer
+  stored every fact with actor `me`, also "moved the clinic services to
+  containers together with the backend team".
+- **The judge makes mistakes.** In one verdict it names a fact that the bullet
+  does not cite. It counts 4 stored role facts ("I worked as a Software
+  Developer") as invented, which lowers Precision. Read the saved verdicts, not
+  only the scores.
+
+The result files are in [results/](results/). The next steps and the lessons
+from building the project are in [docs/lessons.md](docs/lessons.md).
 
 ## How it works
 
@@ -175,6 +203,10 @@ commit the key. Then run:
 ```bash
 python -m grounded_cv.eval
 ```
+
+`--product-thinking-off` turns off thinking for the interviewer and the
+writer. `--rejudge results/<file>.json --judge-model <model>` judges a saved
+interview again and saves a new file, without a new interview.
 
 The default product model is `ollama:qwen3.5-4b-16k`. The simulated interviewee
 and judge use `google:gemini-3.1-flash-lite`. Override them with

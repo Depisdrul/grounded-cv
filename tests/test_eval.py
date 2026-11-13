@@ -11,7 +11,10 @@ from grounded_cv.eval import (
     FactMatch,
     FailureType,
     JudgeReport,
+    RunResult,
+    Turn,
     build_interviewee_view,
+    rejudge,
     run_case,
     score,
 )
@@ -61,7 +64,7 @@ def verdict(bullet_index, failure_types):
 def fake_interview(question, new_fact, end_reason):
     """Return a run_interview that asks one question and stores one fact."""
 
-    def interview(model, store, answer, max_questions):
+    def interview(model, store, answer, max_questions, model_settings):
         answer(question)
         store.add(new_fact)
         return InterviewResult(end_reason, [])
@@ -391,6 +394,7 @@ class RunCaseTest(unittest.TestCase):
                     )
                 ),
                 max_questions=5,
+                product_thinking_off=False,
             )
 
         self.assertEqual(
@@ -450,6 +454,7 @@ class RunCaseTest(unittest.TestCase):
                     JudgeReport(matches=[], bullets=[verdict(1, [])])
                 ),
                 max_questions=5,
+                product_thinking_off=False,
             )
 
         self.assertEqual(
@@ -471,6 +476,119 @@ class RunCaseTest(unittest.TestCase):
                 'Judge must give exactly one match per stored fact.'
             ],
         )
+
+    def test_thinking_off_reaches_the_interviewer_and_the_writer(self):
+        with (
+            mock.patch(
+                'grounded_cv.eval.run_interview',
+                autospec=True,
+                side_effect=fake_interview(
+                    'What did you do?',
+                    NewFact(
+                        employer='Example Rail Services',
+                        role='Software developer',
+                        period='2015-2017',
+                        action='Wrote the import job.',
+                        actor=Actor.ME,
+                        status=Status.CONFIRMED,
+                    ),
+                    EndReason.AGENT_DONE,
+                ),
+            ) as interview,
+            mock.patch(
+                'grounded_cv.eval.write_bullets',
+                autospec=True,
+                return_value=[
+                    Bullet(text='Wrote the import job.', fact_ids=['F1'])
+                ],
+            ) as write,
+        ):
+            result = run_case(
+                Persona(
+                    name='One fact',
+                    facts=[
+                        persona_fact(
+                            'P1',
+                            'Wrote the import job.',
+                            Actor.ME,
+                            Status.CONFIRMED,
+                        )
+                    ],
+                ),
+                product_model='test:product',
+                interviewee_model=reply_with_text('I wrote the import job.'),
+                judge_model=reply_with_judge_report(
+                    JudgeReport(
+                        matches=[fact_match('F1', 'P1')],
+                        bullets=[verdict(1, [])],
+                    )
+                ),
+                max_questions=5,
+                product_thinking_off=True,
+            )
+
+        self.assertEqual(
+            interview.call_args.kwargs['model_settings'],
+            {'openai_reasoning_effort': 'none'},
+        )
+        write.assert_called_once_with(
+            'test:product', result.facts, {'openai_reasoning_effort': 'none'}
+        )
+        self.assertTrue(result.product_thinking_off)
+
+
+class RejudgeTest(unittest.TestCase):
+    def test_rejudge_replaces_the_judge_step_and_keeps_the_interview(self):
+        saved = RunResult(
+            persona=Persona(
+                name='One fact',
+                facts=[
+                    persona_fact(
+                        'P1',
+                        'Wrote the import job.',
+                        Actor.ME,
+                        Status.CONFIRMED,
+                    )
+                ],
+            ),
+            product_model='ollama:qwen3.5-4b-16k',
+            product_thinking_off=False,
+            interviewee_model='ollama:qwen3.5-4b-16k',
+            judge_model='ollama:qwen3.5-4b-16k',
+            max_questions=8,
+            end_reason=EndReason.AGENT_DONE,
+            transcript=[
+                Turn(
+                    question='What did you do?',
+                    answer='I wrote the import job.',
+                )
+            ],
+            facts=[
+                stored_fact(
+                    'F1', 'Wrote the import job.', Actor.ME, Status.CONFIRMED
+                )
+            ],
+            bullets=[Bullet(text='Wrote the import job.', fact_ids=['F1'])],
+            checks=[],
+            judge=None,
+            scores=None,
+            judge_error='ModelHTTPError: quota exhausted',
+            prompt_sha256={'interviewer': 'abc', 'judge': 'old'},
+        )
+        judge_model = reply_with_judge_report(
+            JudgeReport(
+                matches=[fact_match('F1', 'P1')], bullets=[verdict(1, [])]
+            )
+        )
+
+        new_result = rejudge(saved, judge_model)
+
+        self.assertEqual(new_result.judge_model, judge_model.model_name)
+        self.assertIsNone(new_result.judge_error)
+        self.assertEqual(new_result.scores.recall, 1.0)
+        self.assertEqual(new_result.transcript, saved.transcript)
+        self.assertEqual(new_result.prompt_sha256['interviewer'], 'abc')
+        self.assertNotEqual(new_result.prompt_sha256['judge'], 'old')
 
 
 class IntervieweeViewTest(unittest.TestCase):

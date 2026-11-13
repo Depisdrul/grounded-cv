@@ -1,6 +1,7 @@
 # Private data and maintainer-only instructions. Never commit.
 private/
 CLAUDE.local.md
+*.local.md
 .claude/settings.local.json
 
 # Python

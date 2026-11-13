@@ -79,6 +79,25 @@ class WriteBulletsTest(unittest.TestCase):
             [confirmed.model_dump(mode='json')],
         )
 
+    def test_sends_the_model_settings_with_the_request(self):
+        sent_settings = []
+
+        def reply_with_no_bullets(messages, info):
+            sent_settings.append(info.model_settings)
+            return ModelResponse(
+                parts=[
+                    ToolCallPart(info.output_tools[0].name, {'response': []})
+                ]
+            )
+
+        write_bullets(
+            FunctionModel(reply_with_no_bullets),
+            [make_fact('F1', Status.CONFIRMED)],
+            model_settings={'temperature': 0.25},
+        )
+
+        self.assertEqual(sent_settings[0].get('temperature'), 0.25)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -160,6 +160,9 @@ conda run --no-capture-output -n grounded-cv python -m grounded_cv.eval --interv
 Each case is saved to `results/` as soon as it ends. A judge failure (for example an
 exhausted Gemini quota) is recorded in the result as `judge_error`, with the
 interview kept, and the command exits with code 1.
+`--product-thinking-off` turns off thinking for the interviewer and the writer; the
+file name gets `-thinking-off`. `--rejudge results/<file>.json --judge-model <model>`
+judges saved interviews again and saves a new file; it runs no interview.
 
 ## Privacy rules
 
@@ -198,9 +201,6 @@ interview kept, and the command exits with code 1.
 - Rebuild the orchestration in LangGraph (interview, save, coverage check, write, check),
   with the same PydanticAI models and the same evaluation suite. Compare the two versions
   on the same metrics.
-- Interviewer thinking on and off as two configurations in the results table
-  (`docs/decisions.md`, entry 19). It needs a CLI option that passes the model
-  settings to the interviewer.
 - Career advice, only if someone defines how to evaluate it.
 - A portfolio page generated from the confirmed facts.
 - A GitHub Actions job that runs `scripts/check.sh` on each push. The pre-commit hook

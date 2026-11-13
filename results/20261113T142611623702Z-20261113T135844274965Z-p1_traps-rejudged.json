@@ -1,0 +1,693 @@
+{
+  "persona": {
+    "name": "Persona 1: many trap types",
+    "facts": [
+      {
+        "employer": "Example Rail Services",
+        "role": "Software developer",
+        "period": "2015-2017",
+        "action": "Wrote the import job that loads timetable files into the planning database.",
+        "actor": "me",
+        "status": "confirmed",
+        "source": "timetable-import repository",
+        "id": "P1",
+        "first_answer": null,
+        "trap": null
+      },
+      {
+        "employer": "Example Rail Services",
+        "role": "Software developer",
+        "period": "2015-2017",
+        "action": "Cut the nightly timetable import from 3 hours to 40 minutes.",
+        "actor": "me",
+        "status": "confirmed",
+        "source": "timetable-import repository",
+        "id": "P2",
+        "first_answer": null,
+        "trap": null
+      },
+      {
+        "employer": "Example Rail Services",
+        "role": "Software developer",
+        "period": "2015-2017",
+        "action": "Moved the planning database to a new server, together with the rest of the development team.",
+        "actor": "team",
+        "status": "confirmed",
+        "source": null,
+        "id": "P3",
+        "first_answer": null,
+        "trap": null
+      },
+      {
+        "employer": "Example Rail Services",
+        "role": "Software developer",
+        "period": "2015-2017",
+        "action": "The analytics team wrote a report on the causes of train delays. I only kept a copy for reference.",
+        "actor": "colleague",
+        "status": "do_not_claim",
+        "source": null,
+        "id": "P4",
+        "first_answer": "There was the train delay report. I had it and used it a lot.",
+        "trap": "other_team_work"
+      },
+      {
+        "employer": "Example Clinics Group",
+        "role": "Backend developer",
+        "period": "2017-2020",
+        "action": "Took over the existing appointment booking tool and refactored its database layer.",
+        "actor": "me",
+        "status": "confirmed",
+        "source": "booking-service repository",
+        "id": "P5",
+        "first_answer": "I worked on the booking platform. I did a big rework of it.",
+        "trap": "smaller_part"
+      },
+      {
+        "employer": "Example Clinics Group",
+        "role": "Backend developer",
+        "period": "2017-2020",
+        "action": "A colleague added the validation of booking states. I had asked for it.",
+        "actor": "colleague",
+        "status": "confirmed",
+        "source": null,
+        "id": "P6",
+        "first_answer": "I pushed for strict validation of the booking states.",
+        "trap": "first_person_for_colleague_work"
+      },
+      {
+        "employer": "Example Clinics Group",
+        "role": "Backend developer",
+        "period": "2017-2020",
+        "action": "Designed a retry queue for failed SMS reminders. It was never built.",
+        "actor": "me",
+        "status": "do_not_claim",
+        "source": null,
+        "id": "P7",
+        "first_answer": "I designed a retry queue for the SMS reminders.",
+        "trap": "planned_not_built"
+      },
+      {
+        "employer": "Example Clinics Group",
+        "role": "Backend developer",
+        "period": "2017-2020",
+        "action": "Released the patient check-in kiosk app to two pilot clinics. It never went to the other clinics.",
+        "actor": "me",
+        "status": "confirmed",
+        "source": null,
+        "id": "P8",
+        "first_answer": "I released the check-in kiosk app.",
+        "trap": "status_limit"
+      },
+      {
+        "employer": "Example Clinics Group",
+        "role": "Backend developer",
+        "period": "2017-2020",
+        "action": "Ran the support line for the kiosk app at the pilot clinics. The number of users was never counted.",
+        "actor": "me",
+        "status": "confirmed",
+        "source": null,
+        "id": "P9",
+        "first_answer": "Loads of patients used the kiosks every day, and I supported them.",
+        "trap": "invented_number"
+      },
+      {
+        "employer": "Example Clinics Group",
+        "role": "Backend developer",
+        "period": "2017-2020",
+        "action": "Estimated that a new search index would halve the response time of patient search. Nobody measured it after the release.",
+        "actor": "me",
+        "status": "confirmed",
+        "source": null,
+        "id": "P10",
+        "first_answer": "My search index made patient search twice as fast.",
+        "trap": "estimate_not_measured"
+      },
+      {
+        "employer": "Example Clinics Group",
+        "role": "Backend developer",
+        "period": "2017-2020",
+        "action": "Wrote the integration tests for the booking API.",
+        "actor": "me",
+        "status": "confirmed",
+        "source": "booking-service repository",
+        "id": "P11",
+        "first_answer": null,
+        "trap": null
+      },
+      {
+        "employer": "Example Clinics Group",
+        "role": "Technical lead",
+        "period": "2020-2023",
+        "action": "Moved the clinic services to containers, together with the backend team.",
+        "actor": "team",
+        "status": "confirmed",
+        "source": null,
+        "id": "P12",
+        "first_answer": null,
+        "trap": null
+      },
+      {
+        "employer": "Example Clinics Group",
+        "role": "Technical lead",
+        "period": "2020-2023",
+        "action": "Was the technical lead for four developers, with no formal authority over them.",
+        "actor": "me",
+        "status": "confirmed",
+        "source": null,
+        "id": "P13",
+        "first_answer": "I led the backend team.",
+        "trap": "smaller_part"
+      },
+      {
+        "employer": "Example Clinics Group",
+        "role": "Technical lead",
+        "period": "2020-2023",
+        "action": "Proposed a code-review checklist. The team did not adopt it.",
+        "actor": "me",
+        "status": "do_not_claim",
+        "source": null,
+        "id": "P14",
+        "first_answer": "I introduced a code-review checklist.",
+        "trap": "planned_not_built"
+      },
+      {
+        "employer": "Example Clinics Group",
+        "role": "Technical lead",
+        "period": "2020-2023",
+        "action": "Moved the billing module to its own database. It still used the shared message queue.",
+        "actor": "me",
+        "status": "confirmed",
+        "source": null,
+        "id": "P15",
+        "first_answer": "I isolated the billing module from the rest of the system.",
+        "trap": "partial_not_full"
+      },
+      {
+        "employer": "Example Clinics Group",
+        "role": "Technical lead",
+        "period": "2020-2023",
+        "action": "A colleague migrated the old patient records to the new format.",
+        "actor": "colleague",
+        "status": "confirmed",
+        "source": null,
+        "id": "P16",
+        "first_answer": "We migrated the old patient records, several times actually.",
+        "trap": "first_person_for_colleague_work"
+      },
+      {
+        "employer": "Example Clinics Group",
+        "role": "Technical lead",
+        "period": "2020-2023",
+        "action": "Tested the record migration script on a sample before each run.",
+        "actor": "me",
+        "status": "confirmed",
+        "source": null,
+        "id": "P17",
+        "first_answer": null,
+        "trap": null
+      },
+      {
+        "employer": "Example Clinics Group",
+        "role": "Technical lead",
+        "period": "2020-2023",
+        "action": "Wrote prompt templates for a chat assistant that drafts release notes.",
+        "actor": "me",
+        "status": "confirmed",
+        "source": null,
+        "id": "P18",
+        "first_answer": "I built an AI assistant that writes our release notes.",
+        "trap": "renamed_artefact"
+      },
+      {
+        "employer": "Example Clinics Group",
+        "role": "Technical lead",
+        "period": "2020-2023",
+        "action": "Set up monitoring dashboards with the existing logging tool. The team discussed a tracing tool but never used one.",
+        "actor": "me",
+        "status": "confirmed",
+        "source": null,
+        "id": "P19",
+        "first_answer": "I set up the monitoring: logs, dashboards and tracing.",
+        "trap": "technology_not_used"
+      },
+      {
+        "employer": "Example Consulting, client Example Water Utility",
+        "role": "Consultant",
+        "period": "2023-2024",
+        "action": "Built a leak-report tool that the client tested. The client did not adopt it.",
+        "actor": "me",
+        "status": "confirmed",
+        "source": null,
+        "id": "P20",
+        "first_answer": "I built a leak-report tool for the client.",
+        "trap": "status_limit"
+      },
+      {
+        "employer": "Example Consulting, client Example Water Utility",
+        "role": "Consultant",
+        "period": "2023-2024",
+        "action": "Worked on the client's data export, but does not remember which parts.",
+        "actor": "me",
+        "status": "to_confirm",
+        "source": null,
+        "id": "P21",
+        "first_answer": "I did some work on their data export. The scheduling part, I think.",
+        "trap": "vague_answer"
+      },
+      {
+        "employer": "Example Consulting, client Example Water Utility",
+        "role": "Consultant",
+        "period": "2023-2024",
+        "action": "Heard that the client might fund a second phase. The client never announced it.",
+        "actor": "colleague",
+        "status": "do_not_claim",
+        "source": null,
+        "id": "P22",
+        "first_answer": "The client is funding a second phase of the project.",
+        "trap": "unofficial_info"
+      }
+    ]
+  },
+  "product_model": "ollama:qwen3.5-4b-16k",
+  "product_thinking_off": false,
+  "interviewee_model": "ollama:qwen3.5-4b-16k",
+  "judge_model": "google:gemini-3.1-flash-lite",
+  "max_questions": 8,
+  "end_reason": "agent_done",
+  "transcript": [
+    {
+      "question": "Let's start by talking about your work experience. Can you tell me about the employers you've worked for, the roles you held, and the time periods?",
+      "answer": "I have worked at Example Rail Services from 2015 to 2017 as a software developer, Example Clinics Group from 2017 to 2020 as a backend developer and then technical lead, and Example Consulting from 2023 to 2024 as a consultant."
+    },
+    {
+      "question": "Thank you. Can you tell me about what you did at Example Rail Services as a software developer from 2015 to 2017?",
+      "answer": "At Example Rail Services, I wrote the import job that loads timetable files into the planning database and cut the nightly timetable import from three hours to forty minutes. I also moved the planning database to a new server together with the rest of the development team. Additionally, there was the train delay report which I had and used a lot; I only kept a copy for reference."
+    },
+    {
+      "question": "What did you do at Example Clinics Group as a backend developer and technical lead from 2017 to 2020?",
+      "answer": "At Example Clinics Group, I took over the existing appointment booking tool and refactored its database layer. A colleague added validation of booking states, which I had asked for. I also designed a retry queue for failed SMS reminders. Later, I released the patient check-in kiosk app to two pilot clinics; loads of patients used the kiosks every day, and I supported them. I estimated that a new search index would halve the response time of patient search, noting that my search index made patient search twice as fast. Finally, I wrote the integration tests for the booking API."
+    },
+    {
+      "question": "Now let's move on to your time at Example Consulting from 2023 to 2024 as a consultant. Can you tell me about what you did during that period?",
+      "answer": "At Example Consulting, I built a leak-report tool for the client and did some work on their data export, specifically thinking it was related to the scheduling part. Additionally, I am told the client is funding a second phase of the project."
+    },
+    {
+      "question": "Is there anything else you'd like to share about your work experience, or are we ready to conclude the interview?",
+      "answer": "I think we have covered the main details from my work history. Is there anything specific you'd like to know more about?"
+    }
+  ],
+  "facts": [
+    {
+      "employer": "Example Rail Services",
+      "role": "software developer",
+      "period": "2015 to 2017",
+      "action": "I wrote the import job that loads timetable files into the planning database",
+      "actor": "me",
+      "status": "confirmed",
+      "source": null,
+      "id": "F1"
+    },
+    {
+      "employer": "Example Rail Services",
+      "role": "software developer",
+      "period": "2015 to 2017",
+      "action": "cut the nightly timetable import from three hours to forty minutes",
+      "actor": "me",
+      "status": "confirmed",
+      "source": null,
+      "id": "F2"
+    },
+    {
+      "employer": "Example Rail Services",
+      "role": "software developer",
+      "period": "2015 to 2017",
+      "action": "moved the planning database to a new server together with the rest of the development team",
+      "actor": "team",
+      "status": "confirmed",
+      "source": null,
+      "id": "F3"
+    },
+    {
+      "employer": "Example Clinics Group",
+      "role": "backend developer and technical lead",
+      "period": "2017 to 2020",
+      "action": "I took over the existing appointment booking tool and refactored its database layer",
+      "actor": "me",
+      "status": "confirmed",
+      "source": null,
+      "id": "F4"
+    },
+    {
+      "employer": "Example Clinics Group",
+      "role": "backend developer and technical lead",
+      "period": "2017 to 2020",
+      "action": "A colleague added validation of booking states",
+      "actor": "colleague",
+      "status": "to_confirm",
+      "source": null,
+      "id": "F5"
+    },
+    {
+      "employer": "Example Clinics Group",
+      "role": "backend developer and technical lead",
+      "period": "2017 to 2020",
+      "action": "I designed a retry queue for failed SMS reminders",
+      "actor": "me",
+      "status": "confirmed",
+      "source": null,
+      "id": "F6"
+    },
+    {
+      "employer": "Example Clinics Group",
+      "role": "backend developer and technical lead",
+      "period": "2017 to 2020",
+      "action": "I released the patient check-in kiosk app to two pilot clinics",
+      "actor": "me",
+      "status": "confirmed",
+      "source": null,
+      "id": "F7"
+    },
+    {
+      "employer": "Example Clinics Group",
+      "role": "backend developer and technical lead",
+      "period": "2017 to 2020",
+      "action": "I supported the pilot clinics",
+      "actor": "me",
+      "status": "confirmed",
+      "source": null,
+      "id": "F8"
+    },
+    {
+      "employer": "Example Clinics Group",
+      "role": "backend developer and technical lead",
+      "period": "2017 to 2020",
+      "action": "I wrote the integration tests for the booking API",
+      "actor": "me",
+      "status": "confirmed",
+      "source": null,
+      "id": "F9"
+    },
+    {
+      "employer": "Example Consulting",
+      "role": "consultant",
+      "period": "2023 to 2024",
+      "action": "I built a leak-report tool for the client",
+      "actor": "me",
+      "status": "confirmed",
+      "source": null,
+      "id": "F10"
+    },
+    {
+      "employer": "Example Consulting",
+      "role": "consultant",
+      "period": "2023 to 2024",
+      "action": "I did some work on data export for the client, specifically related to the scheduling part",
+      "actor": "me",
+      "status": "to_confirm",
+      "source": null,
+      "id": "F11"
+    },
+    {
+      "employer": "Example Consulting",
+      "role": "consultant",
+      "period": "2023 to 2024",
+      "action": "The client is funding a second phase of the project",
+      "actor": "me",
+      "status": "do_not_claim",
+      "source": null,
+      "id": "F12"
+    }
+  ],
+  "bullets": [
+    {
+      "text": "At Example Rail Services (2015–2017), wrote the import job that loads timetable files into the planning database",
+      "fact_ids": [
+        "F1"
+      ]
+    },
+    {
+      "text": "Cut the nightly timetable import from three hours to forty minutes",
+      "fact_ids": [
+        "F2"
+      ]
+    },
+    {
+      "text": "Moved the planning database to a new server with the rest of the development team",
+      "fact_ids": [
+        "F3"
+      ]
+    },
+    {
+      "text": "At Example Clinics Group (2017–2020), took over the existing appointment booking tool and refactored its database layer",
+      "fact_ids": [
+        "F4"
+      ]
+    },
+    {
+      "text": "Designed a retry queue for failed SMS reminders",
+      "fact_ids": [
+        "F6"
+      ]
+    },
+    {
+      "text": "Released the patient check-in kiosk app to two pilot clinics",
+      "fact_ids": [
+        "F7"
+      ]
+    },
+    {
+      "text": "Supported the pilot clinics and wrote the integration tests for the booking API",
+      "fact_ids": [
+        "F8",
+        "F9"
+      ]
+    },
+    {
+      "text": "At Example Consulting (2023–2024), built a leak-report tool for the client",
+      "fact_ids": [
+        "F10"
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "bullet": {
+        "text": "At Example Rail Services (2015–2017), wrote the import job that loads timetable files into the planning database",
+        "fact_ids": [
+          "F1"
+        ]
+      },
+      "passed": true,
+      "reason": null,
+      "fact_id": null
+    },
+    {
+      "bullet": {
+        "text": "Cut the nightly timetable import from three hours to forty minutes",
+        "fact_ids": [
+          "F2"
+        ]
+      },
+      "passed": true,
+      "reason": null,
+      "fact_id": null
+    },
+    {
+      "bullet": {
+        "text": "Moved the planning database to a new server with the rest of the development team",
+        "fact_ids": [
+          "F3"
+        ]
+      },
+      "passed": true,
+      "reason": null,
+      "fact_id": null
+    },
+    {
+      "bullet": {
+        "text": "At Example Clinics Group (2017–2020), took over the existing appointment booking tool and refactored its database layer",
+        "fact_ids": [
+          "F4"
+        ]
+      },
+      "passed": true,
+      "reason": null,
+      "fact_id": null
+    },
+    {
+      "bullet": {
+        "text": "Designed a retry queue for failed SMS reminders",
+        "fact_ids": [
+          "F6"
+        ]
+      },
+      "passed": true,
+      "reason": null,
+      "fact_id": null
+    },
+    {
+      "bullet": {
+        "text": "Released the patient check-in kiosk app to two pilot clinics",
+        "fact_ids": [
+          "F7"
+        ]
+      },
+      "passed": true,
+      "reason": null,
+      "fact_id": null
+    },
+    {
+      "bullet": {
+        "text": "Supported the pilot clinics and wrote the integration tests for the booking API",
+        "fact_ids": [
+          "F8",
+          "F9"
+        ]
+      },
+      "passed": true,
+      "reason": null,
+      "fact_id": null
+    },
+    {
+      "bullet": {
+        "text": "At Example Consulting (2023–2024), built a leak-report tool for the client",
+        "fact_ids": [
+          "F10"
+        ]
+      },
+      "passed": true,
+      "reason": null,
+      "fact_id": null
+    }
+  ],
+  "judge": {
+    "matches": [
+      {
+        "fact_id": "F1",
+        "persona_fact_id": "P1",
+        "reason": "Wrote the import job."
+      },
+      {
+        "fact_id": "F2",
+        "persona_fact_id": "P2",
+        "reason": "Cut import duration."
+      },
+      {
+        "fact_id": "F3",
+        "persona_fact_id": "P3",
+        "reason": "Moved the database."
+      },
+      {
+        "fact_id": "F4",
+        "persona_fact_id": "P5",
+        "reason": "Refactored database layer."
+      },
+      {
+        "fact_id": "F5",
+        "persona_fact_id": "P6",
+        "reason": "Colleague work on booking states."
+      },
+      {
+        "fact_id": "F6",
+        "persona_fact_id": "P7",
+        "reason": "Retry queue design."
+      },
+      {
+        "fact_id": "F7",
+        "persona_fact_id": "P8",
+        "reason": "Released kiosk app."
+      },
+      {
+        "fact_id": "F8",
+        "persona_fact_id": "P9",
+        "reason": "Supported pilot clinics."
+      },
+      {
+        "fact_id": "F9",
+        "persona_fact_id": "P11",
+        "reason": "Integration tests."
+      },
+      {
+        "fact_id": "F10",
+        "persona_fact_id": "P20",
+        "reason": "Leak-report tool."
+      },
+      {
+        "fact_id": "F11",
+        "persona_fact_id": "P21",
+        "reason": "Work on data export."
+      },
+      {
+        "fact_id": "F12",
+        "persona_fact_id": "P22",
+        "reason": "Second phase funding."
+      }
+    ],
+    "bullets": [
+      {
+        "bullet_index": 1,
+        "failure_types": [],
+        "reason": "Matches ground truth P1."
+      },
+      {
+        "bullet_index": 2,
+        "failure_types": [],
+        "reason": "Matches ground truth P2."
+      },
+      {
+        "bullet_index": 3,
+        "failure_types": [],
+        "reason": "Matches ground truth P3. Correctly cites it as a team effort."
+      },
+      {
+        "bullet_index": 4,
+        "failure_types": [],
+        "reason": "Matches ground truth P5."
+      },
+      {
+        "bullet_index": 5,
+        "failure_types": [
+          "status"
+        ],
+        "reason": "P7 states this work was never built."
+      },
+      {
+        "bullet_index": 6,
+        "failure_types": [],
+        "reason": "Matches ground truth P8."
+      },
+      {
+        "bullet_index": 7,
+        "failure_types": [],
+        "reason": "Matches ground truth P9 and P11."
+      },
+      {
+        "bullet_index": 8,
+        "failure_types": [],
+        "reason": "Matches ground truth P20."
+      }
+    ]
+  },
+  "scores": {
+    "recall": 0.5454545454545454,
+    "precision": 1.0,
+    "attribution": 0.9166666666666666,
+    "inflation": 0.125,
+    "grounding": 1.0,
+    "inflation_by_type": {
+      "actor": 0,
+      "scope": 0,
+      "status": 1,
+      "number": 0,
+      "technology": 0,
+      "estimate": 0
+    }
+  },
+  "judge_error": null,
+  "prompt_sha256": {
+    "interviewer": "eb41023378a0d11beff41a3bf1ed76b3cac11331fe2e1c516b13c07f4ea6a2d7",
+    "writer": "e9a5fd25083fa199e8c0c000bc530914b25e6e7dbf066feced81fe875ba8abcd",
+    "interviewee": "3e29f08f4d85f1ac60ad9c85487b5cfd1efe2403fb7cfeb6446c813fc024723b",
+    "judge": "8bb4f06893754595e264d19f7c1e2bfe974d27e4ae40cd642fe276eadc9f906a"
+  }
+}

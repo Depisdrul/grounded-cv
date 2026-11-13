@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from pydantic_ai import Agent, RunContext
 from pydantic_ai.messages import ModelMessage
 from pydantic_ai.models import Model
+from pydantic_ai.settings import ModelSettings
 
 from grounded_cv.models import NewFact
 from grounded_cv.prompts import load_prompt
@@ -73,6 +74,7 @@ def run_interview(
     answer: Answerer,
     max_questions: int = 30,
     max_answers_without_facts: int = 3,
+    model_settings: ModelSettings | None = None,
 ) -> InterviewResult:
     """Ask questions and store facts until one of three end conditions.
 
@@ -92,6 +94,8 @@ def run_interview(
         max_questions: The most answers that the interview asks for.
         max_answers_without_facts: The most answers in a row that add no
             fact.
+        model_settings: Sent with every model request, for example to turn
+            off thinking.
 
     Returns:
         The end reason and the full message history, for tracing and
@@ -109,6 +113,7 @@ def run_interview(
             output_type=Done if last_run else None,
             deps=store,
             model=model,
+            model_settings=model_settings,
             message_history=history,
         )
         history = result.all_messages()

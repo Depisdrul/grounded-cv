@@ -270,7 +270,7 @@ alternative. The examples use synthetic data.
   interview: an exhausted quota, or output that fails the reference check (entry 15).
 - **Example:** The Gemini free tier runs out after the interview of persona 1. The
   result file holds the full transcript, the facts, the bullets and `judge_error`
-  with the quota error. No command re-judges a saved result yet.
+  with the quota error. `--rejudge` judges the saved result again later.
 - **Rejected:** Raise and save nothing. The scores stay strict (no score without a
   valid judge report), but the interview is lost.
 
@@ -294,8 +294,9 @@ alternative. The examples use synthetic data.
   - A limit on output tokens (`max_tokens`). The limit counts thinking and answer
     together, so a long thought ends with no answer: the same failure.
 - **Interviewer:** The interviewer is the model under test, so it keeps its
-  default. Thinking on and thinking off are two separate configurations in the
-  results table, each scored on the same personas.
+  default. `--product-thinking-off` turns off thinking for the interviewer and
+  the writer. Thinking on and thinking off are two separate configurations in
+  the results table, each scored on the same personas.
 - **Also rejected:** A limit on thinking with `reasoning_effort='low'`. On the
   same question it gave 896 output tokens: no hard cap, and within the spread
   of the default (1092 to 1671).

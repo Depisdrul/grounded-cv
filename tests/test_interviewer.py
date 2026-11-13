@@ -220,6 +220,37 @@ class RunInterviewTest(unittest.TestCase):
             ['I built the export job.'],
         )
 
+    def test_sends_the_model_settings_with_every_request(self):
+        sent_settings = []
+
+        def ask_once_then_done(messages, info):
+            sent_settings.append(info.model_settings)
+            if len(sent_settings) == 1:
+                return ModelResponse(
+                    parts=[
+                        ToolCallPart(
+                            'final_result_Question', {'text': 'What else?'}
+                        )
+                    ]
+                )
+            return ModelResponse(
+                parts=[ToolCallPart('final_result_Done', {'reason': 'Done.'})]
+            )
+
+        run_interview(
+            FunctionModel(ask_once_then_done),
+            self.store,
+            lambda question: 'Nothing else.',
+            max_questions=5,
+            max_answers_without_facts=3,
+            model_settings={'temperature': 0.25},
+        )
+
+        self.assertEqual(
+            [settings.get('temperature') for settings in sent_settings],
+            [0.25, 0.25],
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
