@@ -1,5 +1,6 @@
 import os
 import tempfile
+import threading
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -146,6 +147,28 @@ class FactStoreTest(unittest.TestCase):
         self.assertEqual(
             store.add(make_new_fact('Moved the servers to the cloud.')).id,
             'F2',
+        )
+
+    def test_parallel_adds_get_distinct_ids_and_are_all_written(self):
+        store = FactStore(self.path)
+        barrier = threading.Barrier(8)
+
+        def add_fact(number):
+            barrier.wait()
+            store.add(make_new_fact(f'Task {number}.'))
+
+        threads = [
+            threading.Thread(target=add_fact, args=(number,))
+            for number in range(8)
+        ]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join()
+
+        self.assertEqual(
+            sorted(fact.id for fact in FactStore(self.path).all()),
+            sorted(f'F{number}' for number in range(1, 9)),
         )
 
 

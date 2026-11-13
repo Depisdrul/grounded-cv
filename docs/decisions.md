@@ -174,3 +174,16 @@ alternative. The examples use synthetic data.
   file keep their previous facts, but the interview stops.
 - **Rejected:** Write `facts.json` directly. There is no replace to fail, but a crash
   during the write leaves a half-written file that the store cannot load.
+
+## 12. The fact store serializes `add` with a lock
+
+- **Decision:** `FactStore.add` holds a lock while it picks the ID and writes the
+  file.
+- **Why:** When a model response holds two `save_fact` calls, PydanticAI runs them
+  in parallel threads. Without the lock, both threads can take the same ID, and both
+  write the same temporary file, so the second replace fails.
+- **Example:** The answer "I wrote the scripts. The platform team moved the servers."
+  gives two facts in one response. With a local Qwen model, the run failed with
+  `FileNotFoundError` on `facts.json.tmp`.
+- **Rejected:** Mark the tool as sequential in the agent. That fixes this agent only;
+  the lock keeps the store correct for any caller.

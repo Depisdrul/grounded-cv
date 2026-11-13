@@ -1,6 +1,7 @@
 """Fact store: a JSON file that holds the facts of one interview."""
 
 import os
+import threading
 import time
 from pathlib import Path
 
@@ -18,6 +19,8 @@ class FactStore:
     """Facts kept in memory and written to `path` after each change.
 
     The store never deletes a fact, so the next ID is the fact count plus one.
+    `add` is thread-safe: PydanticAI runs the tool calls of one model
+    response in parallel threads.
     """
 
     def __init__(self, path: Path) -> None:
@@ -28,6 +31,7 @@ class FactStore:
                 store creates it at the first `add`. Its folder must exist.
         """
         self.path = path
+        self._lock = threading.Lock()
         self._facts: list[Fact] = []
         if path.exists():
             self._facts = _FACTS.validate_json(path.read_bytes())
@@ -42,10 +46,11 @@ class FactStore:
             PermissionError: The file write failed. The store and the file
                 keep the facts they had before the call.
         """
-        fact = Fact(id=f'F{len(self._facts) + 1}', **new_fact.model_dump())
-        facts = [*self._facts, fact]
-        self._write(facts)
-        self._facts = facts
+        with self._lock:
+            fact = Fact(id=f'F{len(self._facts) + 1}', **new_fact.model_dump())
+            facts = [*self._facts, fact]
+            self._write(facts)
+            self._facts = facts
         return fact
 
     def get(self, fact_id: str) -> Fact | None:
