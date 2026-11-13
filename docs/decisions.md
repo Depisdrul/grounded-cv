@@ -233,7 +233,7 @@ alternative. The examples use synthetic data.
   persona fact once; precision counts both stored facts. With no bullets,
   grounding and inflation are `null`, not 100%.
 - **Cost:** A stored fact that combines multiple persona facts can match only
-  one of them. The simulator and judge can still make errors even when their
+  one of them. The simulated interviewee and the judge can still make errors even when their
   output passes validation.
 - **Rejected:** Treat empty denominators or incomplete judge output as success.
 
@@ -259,3 +259,17 @@ alternative. The examples use synthetic data.
   interviewer must ask whether it was built.
 - **Rejected:** Send the full persona and tell the interviewee to ignore the labels.
   A small local model follows such an instruction less reliably.
+
+## 18. A judge failure keeps the interview
+
+- **Decision:** `run_case` records any judge failure in `judge_error` and returns
+  the transcript, facts and bullets. `main` saves each case as soon as it ends,
+  and exits with code 1 when a case has a judge error.
+- **Why:** With a local model, one interview takes 15 minutes or more. The judge
+  call comes last and can fail for reasons that have nothing to do with the
+  interview: an exhausted quota, or output that fails the reference check (entry 15).
+- **Example:** The Gemini free tier runs out after the interview of persona 1. The
+  result file holds the full transcript, the facts, the bullets and `judge_error`
+  with the quota error. No command re-judges a saved result yet.
+- **Rejected:** Raise and save nothing. The scores stay strict (no score without a
+  valid judge report), but the interview is lost.

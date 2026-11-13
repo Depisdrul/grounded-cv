@@ -168,7 +168,7 @@ The default product model is `ollama:qwen3.5:4b`. The simulated interviewee
 and judge use `google:gemini-3.1-flash-lite`. Override them with
 `--product-model`, `--interviewee-model` and `--judge-model`. Ollama uses
 `OLLAMA_BASE_URL` when set and otherwise `http://localhost:11434/v1`.
-Use only synthetic personas: the simulator and judge can send their input
+Use only synthetic personas: the simulated interviewee and the judge can send their input
 to a cloud provider.
 
 Flash Lite was available for the first run, but it is a smaller judge. Its

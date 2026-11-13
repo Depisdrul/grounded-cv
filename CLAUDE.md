@@ -149,7 +149,16 @@ A commit must pass `scripts/check.sh`. The local pre-commit hook runs it after t
 privacy checks. Ruff settings are in `ruff.toml`: line length 80, single quotes, LF
 line endings (`.gitattributes` forces LF on checkout).
 
-Add the end-to-end run and `python -m grounded_cv.eval` when they exist.
+Run the evaluation (`--help` lists the options). `conda run` holds all output until the
+process ends; `--no-capture-output` shows the progress log live:
+
+```bash
+conda run --no-capture-output -n grounded-cv python -m grounded_cv.eval --interviewee-model ollama:qwen3.5:4b --max-questions 8
+```
+
+Each case is saved to `results/` as soon as it ends. A judge failure (for example an
+exhausted Gemini quota) is recorded in the result as `judge_error`, with the
+interview kept, and the command exits with code 1.
 
 ## Privacy rules
 
