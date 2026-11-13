@@ -144,8 +144,43 @@ The reasons for each design choice are in [docs/decisions.md](docs/decisions.md)
 
 - The personas are synthetic and few.
 - Recall, precision, attribution and inflation use a judge model, which can be wrong.
-- _Add the limits found during the runs._
+- The simulated interviewee can reveal hidden details too early or invent answers.
+  Check the saved transcript before drawing conclusions.
+- This first suite has one persona. It is not a representative benchmark.
+- A saved transcript is not a full OpenTelemetry trace.
 
 ## Run
 
-_To fill: setup, model configuration, tracing, evaluation command._
+Install Python 3.13 and the project:
+
+```bash
+python -m pip install -e ".[dev]"
+```
+
+Start Ollama with `qwen3.5:4b` available. Put `GEMINI_API_KEY` in the
+environment or in a local `.env` file. Do not commit the key. Then run:
+
+```bash
+python -m grounded_cv.eval
+```
+
+The default product model is `ollama:qwen3.5:4b`. The simulated interviewee
+and judge use `google:gemini-2.5-flash`. Override them with
+`--product-model`, `--interviewee-model` and `--judge-model`. Ollama uses
+`OLLAMA_BASE_URL` when set and otherwise `http://localhost:11434/v1`.
+Use only synthetic personas: the simulator and judge can send their input
+to a cloud provider.
+
+The command runs each JSON persona in `personas/` through Pydantic Evals and
+saves a JSON result in `results/`. Each result includes the persona, model
+names, prompt hashes, interview transcript, stored facts, bullets, check
+results, judge explanations and scores. The question limit is 30 by default;
+`--max-questions` changes it. Runs with different limits, personas, prompts
+or judge models are not directly comparable.
+
+Recall counts unique persona facts with a match. Precision and attribution
+count stored facts; inflation and grounding count bullets. An empty
+denominator is reported as `null`, not as a perfect score. Inflation counts
+each failed bullet once; the breakdown counts every type the judge assigned.
+The evaluation exits with an error if a case fails or the judge returns
+missing, duplicate or unknown references.

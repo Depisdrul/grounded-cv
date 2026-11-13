@@ -6,7 +6,7 @@ temporary file and are printed at the end.
 
 Usage (from the repository root):
     python scripts/smoke_interview.py ollama:qwen3.5:4b
-    python scripts/smoke_interview.py google-gla:gemini-2.5-flash
+    python scripts/smoke_interview.py google:gemini-2.5-flash
 
 An Ollama model needs OLLAMA_BASE_URL, for example
 http://localhost:11434/v1. A Gemini model needs GEMINI_API_KEY; this script

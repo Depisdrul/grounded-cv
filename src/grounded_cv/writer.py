@@ -25,7 +25,7 @@ def write_bullets(model: Model | str, facts: Iterable[Fact]) -> list[Bullet]:
 
     Args:
         model: A PydanticAI model, or a model name such as
-            `google-gla:gemini-2.5-flash`.
+            `google:gemini-2.5-flash`.
         facts: The stored facts, of every status.
 
     Returns:

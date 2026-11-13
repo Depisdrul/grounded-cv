@@ -86,7 +86,7 @@ def run_interview(
 
     Args:
         model: A PydanticAI model, or a model name such as
-            `google-gla:gemini-2.5-flash`.
+            `google:gemini-2.5-flash`.
         store: Receives the facts that the agent saves.
         answer: Returns the answer to each question.
         max_questions: The most answers that the interview asks for.

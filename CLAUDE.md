@@ -89,7 +89,7 @@ evaluation judge maps stored facts to persona facts; the two ID sets never match
 - `prompts/*.md` name `save_fact`, every `Status` and `Actor` value, and `fact_ids`.
   `tests/test_prompts.py` fails when the code and a prompt differ. Rename in both.
 - `config.model_name()` reads `GROUNDED_CV_MODEL` (form `provider:model`, default
-  `google-gla:gemini-2.5-flash`). It does not load `.env`; the caller loads it first.
+  `google:gemini-2.5-flash`). It does not load `.env`; the caller loads it first.
 - Tests script the model with `pydantic_ai.models.function.FunctionModel`. No test
   calls a real model.
 - `personas/*.json` are the evaluation cases (`persona.Persona`). Each fact has the

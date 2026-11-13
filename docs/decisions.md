@@ -219,3 +219,28 @@ alternative. The examples use synthetic data.
   The failure type makes each verdict easy to check by hand.
 - **Rejected:** Only the actor check (the previous rule 3). It misses most of the
   real failure types.
+
+## 15. Record each evaluation case and reject incomplete judge output
+
+- **Decision:** Pydantic Evals runs one case per persona. The result records the
+  persona, transcript, facts, bullets, check results, judge explanations, model
+  names, question limit and prompt hashes. The judge gives one persona match or
+  no match for each stored fact, and one verdict per bullet. Code rejects
+  missing, duplicate and unknown references.
+- **Why:** The reader can inspect a result instead of trusting a score alone.
+  Invalid judge output must not become a plausible-looking metric.
+- **Example:** Two stored facts match the same persona fact. Recall counts the
+  persona fact once; precision counts both stored facts. With no bullets,
+  grounding and inflation are `null`, not 100%.
+- **Cost:** A stored fact that combines multiple persona facts can match only
+  one of them. The simulator and judge can still make errors even when their
+  output passes validation.
+- **Rejected:** Treat empty denominators or incomplete judge output as success.
+
+## 16. Use the current Gemini provider name
+
+- **Decision:** Use `google:gemini-2.5-flash` with the installed PydanticAI.
+- **Why:** Its current provider registry rejects the former `google-gla:`
+  prefix before it can call the model.
+- **Rejected:** Keep the former prefix and require users to diagnose the
+  provider error on each run.
