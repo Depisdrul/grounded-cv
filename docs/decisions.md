@@ -246,3 +246,16 @@ alternative. The examples use synthetic data.
 - **Cost:** Flash Lite is a smaller judge, so its verdicts need careful review.
 - **Rejected:** Keep the former prefix and require users to diagnose the
   provider error on each run.
+
+## 17. The simulated interviewee does not see the trap labels
+
+- **Decision:** The interviewee sees each persona fact as `employer`, `role`,
+  `period`, `action` and `first_answer` only. The judge sees the full persona.
+- **Why:** `id`, `actor`, `status` and `trap` label the answer key. A model that
+  reads `"status": "do_not_claim"` tends to state the truth in its first answer,
+  and the trap no longer tests the interviewer.
+- **Example:** P7 has `first_answer` "I designed a retry queue." With the labels, the
+  interviewee can add "but it was never built" before anyone asks. Without them, the
+  interviewer must ask whether it was built.
+- **Rejected:** Send the full persona and tell the interviewee to ignore the labels.
+  A small local model follows such an instruction less reliably.

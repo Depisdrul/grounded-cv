@@ -107,6 +107,26 @@ _JUDGE_INSTRUCTIONS = (
     'details. The persona is the ground truth.'
 )
 _SIMULATOR = Agent(instructions=_SIMULATOR_INSTRUCTIONS)
+
+_INTERVIEWEE_FIELDS = {'employer', 'role', 'period', 'action', 'first_answer'}
+
+
+def build_interviewee_view(persona: Persona) -> str:
+    """Return the persona as JSON, without the labels that reveal the traps.
+
+    The interviewee does not see `id`, `actor`, `status`, `source` or
+    `trap`. A label such as "do_not_claim" prompts a model to state the
+    truth at once, and the trap no longer tests the interviewer.
+    """
+    return json.dumps(
+        [
+            fact.model_dump(mode='json', include=_INTERVIEWEE_FIELDS)
+            for fact in persona.facts
+        ],
+        indent=2,
+    )
+
+
 _JUDGE = Agent(output_type=JudgeReport, instructions=_JUDGE_INSTRUCTIONS)
 
 
@@ -187,7 +207,8 @@ def run_case(
         prompt = question
         if not history:
             prompt = (
-                f'Persona:\n{persona.model_dump_json()}\n\nQuestion: {question}'
+                f'Persona:\n{build_interviewee_view(persona)}\n\n'
+                f'Question: {question}'
             )
         response = _SIMULATOR.run_sync(
             prompt, model=interviewee_model, message_history=history

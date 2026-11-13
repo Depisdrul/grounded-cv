@@ -1,3 +1,4 @@
+import json
 import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -7,6 +8,7 @@ from grounded_cv.eval import (
     FactMatch,
     FailureType,
     JudgeReport,
+    build_interviewee_view,
     run_case,
     score,
 )
@@ -137,6 +139,40 @@ class EvaluationScoresTest(unittest.TestCase):
         self.assertEqual(
             set(result.prompt_sha256),
             {'interviewer', 'writer', 'interviewee', 'judge'},
+        )
+
+
+class IntervieweeViewTest(unittest.TestCase):
+    def test_view_hides_the_labels_that_reveal_traps(self):
+        persona = Persona(
+            name='Example',
+            facts=[
+                PersonaFact(
+                    id='P7',
+                    employer='Example Clinics Group',
+                    role='Backend developer',
+                    period='2017-2020',
+                    action='Designed a retry queue. It was never built.',
+                    actor='me',
+                    status='do_not_claim',
+                    source='design document',
+                    first_answer='I designed a retry queue.',
+                    trap='planned_not_built',
+                )
+            ],
+        )
+
+        self.assertEqual(
+            json.loads(build_interviewee_view(persona)),
+            [
+                {
+                    'employer': 'Example Clinics Group',
+                    'role': 'Backend developer',
+                    'period': '2017-2020',
+                    'action': 'Designed a retry queue. It was never built.',
+                    'first_answer': 'I designed a retry queue.',
+                }
+            ],
         )
 
 
