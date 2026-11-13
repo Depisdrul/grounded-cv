@@ -317,3 +317,22 @@ alternative. The examples use synthetic data.
   the Ollama app. They depend on each machine and do not show in the results.
   The model name is saved in each result file, so the context size is recorded
   with every run.
+
+## 21. The product runs on the local model by default
+
+- **Decision:** `--product-model` defaults to `GROUNDED_CV_MODEL`, and to
+  `ollama:qwen3.5-4b-16k` when the variable is not set. The simulated
+  interviewee and the judge default to `google:gemini-3.1-flash-lite`.
+- **Why:** The Gemini free tier has a quota. The interviewer makes at
+  least one model call for each answer, and more when it calls `save_fact`, so
+  the product uses the quota fastest. A local model has no quota. The judge
+  stays on Gemini, because a weak judge makes every metric noise.
+- **Example:** A 4-question run hit the Gemini quota before it produced a
+  result. A Qwen 4B judge failed on 24 facts: it did not return one match for
+  each fact.
+- **Cost:** A local interview on a laptop CPU takes 15 minutes or more. The
+  results table compares one product model with thinking on and off, not a
+  local model with a cloud model.
+- **Rejected:** Keep Gemini as the product model and wait for the quota to
+  reset; the work stops until then. Use Claude Haiku in the product; it is
+  paid, and the project must run without a paid key.

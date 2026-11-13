@@ -88,8 +88,14 @@ evaluation judge maps stored facts to persona facts; the two ID sets never match
   checks the bullets again after the model runs.
 - `prompts/*.md` name `save_fact`, every `Status` and `Actor` value, and `fact_ids`.
   `tests/test_prompts.py` fails when the code and a prompt differ. Rename in both.
-- `config.model_name()` reads `GROUNDED_CV_MODEL` (form `provider:model`, default
-  `google:gemini-3.1-flash-lite`). It does not load `.env`; the caller loads it first.
+- The evaluation takes one model per role, in the form `provider:model`:
+  - `--product-model` (interviewer and writer): default
+    `config.product_model_name()`, which returns `GROUNDED_CV_MODEL` or
+    `config.DEFAULT_PRODUCT_MODEL` (`ollama:qwen3.5-4b-16k`).
+  - `--interviewee-model` and `--judge-model`: default
+    `config.DEFAULT_INTERVIEWEE_AND_JUDGE_MODEL` (`google:gemini-3.1-flash-lite`).
+- `config` does not load `.env`. `eval.main` loads it before `build_parser()`,
+  because the parser reads `GROUNDED_CV_MODEL` when it is built.
 - Tests script the model with `pydantic_ai.models.function.FunctionModel`. No test
   calls a real model.
 - `personas/*.json` are the evaluation cases (`persona.Persona`). Each fact has the
@@ -124,9 +130,10 @@ keep the results in `results/` so that runs can be compared.
 - Python 3.13 (conda env `grounded-cv`), PydanticAI, `pydantic-evals` (Day 2, not installed
   yet). Src layout:
   `src/grounded_cv/`.
-- Model: a configuration value (`GROUNDED_CV_MODEL`). Gemini (free tier) for development
-  and as the judge; a small Ollama model as the second model in the comparison; Claude
-  Haiku optional. The README section "Models" gives the reasons.
+- Model: one command-line option per role. Qwen3.5 4B on Ollama for the product
+  (interviewer and writer), because the Gemini free-tier quota ran out. Gemini Flash
+  Lite (free tier) for the simulated interviewee and the judge. Claude Haiku optional.
+  The README section "Models" and `docs/decisions.md` entry 21 give the reasons.
 - API keys live in `.env` (gitignored). Do not read or edit `.env`; project settings
   deny it. The pre-commit hook blocks staged Gemini, Anthropic and Hugging Face keys.
 - Tracing: OpenTelemetry from PydanticAI. Local Jaeger in Docker by default. Logfire

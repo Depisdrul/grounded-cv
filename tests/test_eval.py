@@ -1,4 +1,5 @@
 import json
+import os
 import unittest
 from unittest import mock
 
@@ -14,6 +15,8 @@ from grounded_cv.eval import (
     RunResult,
     Turn,
     build_interviewee_view,
+    build_parser,
+    main,
     rejudge,
     run_case,
     score,
@@ -636,6 +639,44 @@ class IntervieweeAgentTest(unittest.TestCase):
         _INTERVIEWEE.run_sync('What did you do?', model=FunctionModel(reply))
 
         self.assertEqual(requests[0].get('openai_reasoning_effort'), 'none')
+
+
+class ProductModelTest(unittest.TestCase):
+    def test_product_model_defaults_to_the_environment_value(self):
+        with mock.patch.dict(
+            os.environ, {'GROUNDED_CV_MODEL': 'ollama:llama3.2'}, clear=True
+        ):
+            args = build_parser().parse_args([])
+
+        self.assertEqual(args.product_model, 'ollama:llama3.2')
+
+    def test_main_loads_the_dotenv_file_before_it_reads_the_product_model(
+        self,
+    ):
+        call_order = mock.Mock(spec=['load_dotenv', 'product_model_name'])
+        with (
+            mock.patch.dict(os.environ),
+            mock.patch(
+                'grounded_cv.eval.load_dotenv',
+                autospec=True,
+                side_effect=call_order.load_dotenv,
+            ),
+            mock.patch(
+                'grounded_cv.eval.product_model_name',
+                autospec=True,
+                side_effect=call_order.product_model_name,
+            ),
+            # --rejudge makes main return before it loads personas or calls
+            # a model.
+            mock.patch('sys.argv', ['eval', '--rejudge', 'results/old.json']),
+            mock.patch('grounded_cv.eval._rejudge_files', autospec=True),
+        ):
+            main()
+
+        self.assertEqual(
+            call_order.mock_calls,
+            [mock.call.load_dotenv(), mock.call.product_model_name()],
+        )
 
 
 if __name__ == '__main__':

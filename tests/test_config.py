@@ -2,23 +2,23 @@ import os
 import unittest
 from unittest import mock
 
-from grounded_cv.config import DEFAULT_MODEL, model_name
+from grounded_cv.config import product_model_name
 
 
-class ModelNameTest(unittest.TestCase):
+class ProductModelNameTest(unittest.TestCase):
     def test_returns_the_environment_value(self):
         with mock.patch.dict(
             os.environ, {'GROUNDED_CV_MODEL': 'ollama:llama3.2'}, clear=True
         ):
-            self.assertEqual(model_name(), 'ollama:llama3.2')
+            self.assertEqual(product_model_name(), 'ollama:llama3.2')
 
-    def test_returns_the_default_when_unset(self):
+    def test_returns_the_local_model_when_unset(self):
         with mock.patch.dict(os.environ, {}, clear=True):
-            self.assertEqual(model_name(), DEFAULT_MODEL)
+            self.assertEqual(product_model_name(), 'ollama:qwen3.5-4b-16k')
 
-    def test_returns_the_default_when_empty(self):
+    def test_returns_the_local_model_when_empty(self):
         with mock.patch.dict(os.environ, {'GROUNDED_CV_MODEL': ''}, clear=True):
-            self.assertEqual(model_name(), DEFAULT_MODEL)
+            self.assertEqual(product_model_name(), 'ollama:qwen3.5-4b-16k')
 
 
 if __name__ == '__main__':

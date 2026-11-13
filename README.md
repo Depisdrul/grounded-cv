@@ -45,20 +45,34 @@ from building the project are in [docs/lessons.md](docs/lessons.md).
 The product has two agents and one deterministic check. The evaluation adds two more
 model roles.
 
-```
-                    PRODUCT                                   EVALUATION ONLY
- ┌───────────────────────────────────────────┐
- │                                           │       persona file
- │  Interviewer agent ◄──── answers ─────────┼──── Simulated interviewee
- │        │          ───── questions ────────┼───►
- │        │ save_fact                        │
- │        ▼                                  │
- │   fact store ──► Writer agent ──► bullets │
- │                                     │     │
- │                          check_bullets()  │──► Grounding
- └───────────────────────────────────────────┘
-       fact store + bullets + persona file ──► Judge ──► Recall, Precision,
-                                                         Attribution, Inflation
+```mermaid
+flowchart TB
+    subgraph product [Product]
+        interviewer[Interviewer agent]
+        store[(Fact store)]
+        writer[Writer agent]
+        bullets[Bullets with fact IDs]
+        check{{"check_bullets()"}}
+        interviewer -- save_fact --> store
+        store -- confirmed facts --> writer
+        writer --> bullets
+        bullets --> check
+    end
+
+    subgraph evaluation [Evaluation only]
+        persona[/Persona file/]
+        interviewee[Simulated interviewee]
+        judge[Judge]
+        persona --> interviewee
+        persona --> judge
+    end
+
+    interviewer -- question --> interviewee
+    interviewee -- answer --> interviewer
+    store --> judge
+    bullets --> judge
+    check --> grounding([Grounding])
+    judge --> judgeMetrics(["Recall, Precision,<br>Attribution, Inflation"])
 ```
 
 | Role | Kind | Sees | Produces |
@@ -130,26 +144,66 @@ fact is not invented. Attribution would drop to 1 of 2.
 
 ## Models
 
-The model is a configuration value (`GROUNDED_CV_MODEL`). The code does not change between
-models.
+Each model role has its own option. The diagram shows the defaults of
+`python -m grounded_cv.eval` and where each model runs.
 
-| Model | Used for | Why |
+```mermaid
+flowchart TB
+    subgraph local [Your machine]
+        subgraph productModel ["--product-model<br>default GROUNDED_CV_MODEL,<br>else ollama:qwen3.5-4b-16k"]
+            interviewer[Interviewer agent]
+            writer[Writer agent]
+        end
+        check{{"check_bullets()<br>Python code, no model"}}
+    end
+
+    subgraph cloud [Cloud provider]
+        subgraph intervieweeModel ["--interviewee-model<br>default google:gemini-3.1-flash-lite"]
+            interviewee["Simulated interviewee<br>thinking always off"]
+        end
+        subgraph judgeModel ["--judge-model<br>default google:gemini-3.1-flash-lite"]
+            judge[Judge]
+        end
+    end
+```
+
+The interviewer and the writer use the model's default thinking setting.
+`--product-thinking-off` turns it off. The example run in [Results](#results)
+sets `--interviewee-model ollama:qwen3.5-4b-16k`, so only the judge ran in the
+cloud.
+
+The code does not change between models.
+
+| Role | Default model | Why |
 |---|---|---|
-| Gemini (cloud, free tier) | Development runs, and the judge in every evaluation | Fast, and reliable with tool calls. The judge must be a strong model: a weak judge makes every metric noise. |
-| Ollama (local, small model) | The second model in the results table | Free, runs offline, needs no API key. The comparison shows how a small local model differs from a cloud model on faithfulness. |
-| Ollama (local) | A real interview about your own career | Real career data must not go to a cloud provider. A local model keeps it on your machine. |
-| Claude Haiku (cloud, paid API) | Optional: a third model, or a substitute if the Gemini free-tier rate limits slow the runs | Low cost per run. Not needed to run the project. |
+| Interviewer and writer (the product) | Qwen3.5 4B on Ollama (local) | The product makes the most model calls: at least one for each answer, and more when it calls `save_fact`. The Gemini free-tier quota ran out during development runs. A local model has no quota and needs no API key. |
+| Simulated interviewee | Gemini Flash Lite (cloud, free tier) | It only looks up answers, so a small cloud model is enough. To save the quota, run it locally with `--interviewee-model ollama:qwen3.5-4b-16k`, as the example run does. |
+| Judge | Gemini Flash Lite (cloud, free tier) | The judge must be stronger than the product: a weak judge makes every metric noise. A Qwen 4B judge failed on 24 facts, because it did not return one match for each fact. |
 
-The judge stays the same model in all runs, so that results from different models can be
-compared.
+Two more uses:
+
+- **A real interview about your own career:** use a local product model. A real
+  interview has no simulated interviewee and no judge. Real career data must not
+  go to a cloud provider.
+- **Claude Haiku (cloud, paid API):** optional, as a substitute when the Gemini
+  quota runs out. It costs little per run, and the project does not need it.
+
+The judge stays the same model in all runs, so that results from different product
+models can be compared.
 
 Limits of this choice:
 
-- The Gemini free tier has rate limits. A full evaluation run can be slow.
+- The results table compares one product model with thinking on and off. It does
+  not yet compare a local product model with a cloud product model.
+- The local product model is slow on a laptop CPU: one interview takes 15 minutes or
+  more, and up to 2 hours with thinking on.
+- The Gemini free tier has a quota. When the quota runs out during the judge
+  step, the result keeps the interview with a `judge_error`. Run
+  `--rejudge` after the quota resets.
 - Free-tier data can be used by the provider to train its models. The committed data is
   synthetic, so this is acceptable here. Do not send real career data to it.
 - A small local model may fail tool calls more often. That failure is part of what the
-  comparison measures.
+  evaluation measures.
 
 ## Glossary
 
@@ -208,8 +262,9 @@ python -m grounded_cv.eval
 writer. `--rejudge results/<file>.json --judge-model <model>` judges a saved
 interview again and saves a new file, without a new interview.
 
-The default product model is `ollama:qwen3.5-4b-16k`. The simulated interviewee
-and judge use `google:gemini-3.1-flash-lite`. Override them with
+The default product model is `GROUNDED_CV_MODEL` from the environment or
+`.env`, or `ollama:qwen3.5-4b-16k` when it is not set. The simulated
+interviewee and judge use `google:gemini-3.1-flash-lite`. Override them with
 `--product-model`, `--interviewee-model` and `--judge-model`. Ollama uses
 `OLLAMA_BASE_URL` when set and otherwise `http://localhost:11434/v1`.
 Use only synthetic personas: the simulated interviewee and the judge can send their input

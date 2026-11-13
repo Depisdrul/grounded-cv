@@ -28,7 +28,11 @@ from pydantic_ai.models.openai import OpenAIChatModelSettings
 from pydantic_evals import Case, Dataset
 
 from grounded_cv.check import BulletCheckResult, check_bullets
-from grounded_cv.config import DEFAULT_MODEL
+from grounded_cv.config import (
+    DEFAULT_INTERVIEWEE_AND_JUDGE_MODEL,
+    DEFAULT_PRODUCT_MODEL,
+    product_model_name,
+)
 from grounded_cv.interviewer import EndReason, run_interview
 from grounded_cv.models import Bullet, Fact, StrictModel
 from grounded_cv.persona import Persona, load_persona
@@ -40,7 +44,6 @@ from grounded_cv.writer import write_bullets
 # is outside the `grounded_cv` logger that `main` sets to INFO.
 logger = logging.getLogger('grounded_cv.eval')
 
-LOCAL_MODEL = 'ollama:qwen3.5-4b-16k'
 PROMPT_NAMES = ('interviewer', 'writer', 'interviewee', 'judge')
 
 
@@ -418,13 +421,27 @@ def _rejudge_files(
         raise SystemExit(1)
 
 
-def main() -> None:
+def build_parser() -> argparse.ArgumentParser:
+    """Return the command-line parser.
+
+    The `--product-model` default comes from the environment at call time,
+    so load `.env` first.
+    """
     parser = argparse.ArgumentParser(
         description='Evaluate on synthetic personas only.'
     )
-    parser.add_argument('--product-model', default=LOCAL_MODEL)
-    parser.add_argument('--interviewee-model', default=DEFAULT_MODEL)
-    parser.add_argument('--judge-model', default=DEFAULT_MODEL)
+    parser.add_argument(
+        '--product-model',
+        default=product_model_name(),
+        help='Model of the interviewer and the writer. '
+        f'Default: GROUNDED_CV_MODEL, or {DEFAULT_PRODUCT_MODEL}.',
+    )
+    parser.add_argument(
+        '--interviewee-model', default=DEFAULT_INTERVIEWEE_AND_JUDGE_MODEL
+    )
+    parser.add_argument(
+        '--judge-model', default=DEFAULT_INTERVIEWEE_AND_JUDGE_MODEL
+    )
     parser.add_argument('--max-questions', type=int, default=30)
     parser.add_argument('--personas', type=Path, default=Path('personas'))
     parser.add_argument('--results', type=Path, default=Path('results'))
@@ -440,13 +457,18 @@ def main() -> None:
         metavar='RESULT',
         help='Judge saved results again with --judge-model. No interview.',
     )
+    return parser
+
+
+def main() -> None:
+    load_dotenv()
+    parser = build_parser()
     args = parser.parse_args()
     if args.max_questions < 1:
         parser.error('--max-questions must be positive')
 
     logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%H:%M:%S')
     logging.getLogger('grounded_cv').setLevel(logging.INFO)
-    load_dotenv()
     os.environ.setdefault('OLLAMA_BASE_URL', 'http://localhost:11434/v1')
 
     if args.rejudge:
