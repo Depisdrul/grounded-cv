@@ -135,7 +135,7 @@ Limits of this choice:
 | Status | `confirmed`: the person stated it clearly. `to_confirm`: the answer was vague. `do_not_claim`: it must not appear on the CV, for example a feature that was planned but never built. |
 | Bullet | One CV line. It lists the IDs of the facts that support it. A bullet with no subject reads as first person. |
 | Match | The judge's decision that a stored fact and a persona fact describe the same work. |
-| Trap | A persona fact that invites inflation: a cancelled feature, another team's work, a vague answer about who did the work. |
+| Trap | A persona fact that invites inflation: a cancelled feature, another team's work, a vague answer about who did the work, or a confirmed fact with an exact limit (released but not in production, estimated but not measured). |
 | Judge | A model that compares texts by meaning. It can be wrong. |
 
 The reasons for each design choice are in [docs/decisions.md](docs/decisions.md).

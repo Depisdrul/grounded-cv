@@ -64,9 +64,10 @@ evaluation judge maps stored facts to persona facts; the two ID sets never match
 
 ### Rules measured by the evaluation (not enforceable in code)
 
-3. A fact with actor `team` or `colleague` must not appear in a bullet in the first person
-   without naming the others. A judge model checks this. It is the only LLM check on
-   bullets.
+3. Every claim in a bullet must follow from the facts that it cites. A judge model
+   checks this and names the failure type: actor (team or colleague work in the first
+   person without naming the others), scope, status, number, technology, estimate
+   shown as measured. It is the only LLM check on bullets.
 4. The interviewer stores a fact as `to_confirm` when the answer is vague. It does not
    guess the missing part. This is a prompt instruction. The Precision and Attribution
    metrics measure it.
@@ -105,7 +106,7 @@ facts with known IDs. It answers only from that file and says "I don't know" oth
 | Recall | Share of persona facts that the interviewer stored (judge matches stored facts to persona facts) |
 | Precision | Share of stored facts that match a persona fact (the rest are invented) |
 | Attribution | Share of matched stored facts whose actor equals the persona fact's actor |
-| Inflation | Share of bullets that claim a `do_not_claim` fact or turn team work into personal work |
+| Inflation | Share of bullets that claim a `do_not_claim` fact, or claim more than their cited facts say (rule 3). Reported by failure type |
 | Grounding | Share of bullets that pass `check_bullets()` (deterministic) |
 
 Cases: 3 to 5 personas. At least one persona has traps: a feature that was planned but

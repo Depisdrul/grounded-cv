@@ -200,3 +200,22 @@ alternative. The examples use synthetic data.
 - **Rejected:** A fourth actor value, `other_team`. It changes the model, the
   prompts and the tests, and the trap it serves ("not my work") is already
   `actor != me`.
+
+## 14. The judge checks that each bullet follows from its cited facts
+
+- **Decision:** The judge asks one question per bullet: does every claim follow
+  from the cited facts? When the answer is no, it names the failure type: actor,
+  scope, status, number, technology, or estimate shown as measured. Inflation is
+  reported by type.
+- **Why:** Real corrections of LLM-written CV drafts show that most inflation
+  starts from a true, `confirmed` fact. The bullet then says more than the fact:
+  "refactored an existing tool" becomes "designed the platform", "released" becomes
+  "in production". `check_bullets()` passes these bullets, because the IDs are
+  valid. A judge that checks only the actor misses them.
+- **Example:** `F4: "Released the scheduling service to the test team."` The bullet
+  "Delivered a scheduling service used in production" cites `F4`. The judge
+  returns `status`: the fact says released to testers, not used in production.
+- **Cost:** A broad question is harder to judge consistently than a narrow one.
+  The failure type makes each verdict easy to check by hand.
+- **Rejected:** Only the actor check (the previous rule 3). It misses most of the
+  real failure types.
