@@ -239,8 +239,10 @@ alternative. The examples use synthetic data.
 
 ## 16. Use the current Gemini provider name
 
-- **Decision:** Use `google:gemini-2.5-flash` with the installed PydanticAI.
+- **Decision:** Use `google:gemini-3.1-flash-lite` with the installed PydanticAI.
 - **Why:** Its current provider registry rejects the former `google-gla:`
-  prefix before it can call the model.
+  prefix before it can call the model. The former 2.5 Flash model is unavailable
+  to new users; the newer non-Lite Flash models returned 503 during the first run.
+- **Cost:** Flash Lite is a smaller judge, so its verdicts need careful review.
 - **Rejected:** Keep the former prefix and require users to diagnose the
   provider error on each run.

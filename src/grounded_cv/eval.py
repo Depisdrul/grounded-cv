@@ -17,6 +17,7 @@ from pydantic_ai.messages import ModelMessage
 from pydantic_evals import Case, Dataset
 
 from grounded_cv.check import check_bullets
+from grounded_cv.config import DEFAULT_MODEL
 from grounded_cv.interviewer import run_interview
 from grounded_cv.models import Bullet, Fact, StrictModel
 from grounded_cv.persona import Persona, load_persona
@@ -193,6 +194,7 @@ def run_case(
         )
         history = response.all_messages()
         transcript.append(Turn(question=question, answer=response.output))
+        sys.stderr.write(f'Interview answer {len(transcript)} received.\n')
         return response.output
 
     with tempfile.TemporaryDirectory() as tmp:
@@ -248,10 +250,8 @@ def main() -> None:
         description='Evaluate on synthetic personas only.'
     )
     parser.add_argument('--product-model', default='ollama:qwen3.5:4b')
-    parser.add_argument(
-        '--interviewee-model', default='google:gemini-2.5-flash'
-    )
-    parser.add_argument('--judge-model', default='google:gemini-2.5-flash')
+    parser.add_argument('--interviewee-model', default=DEFAULT_MODEL)
+    parser.add_argument('--judge-model', default=DEFAULT_MODEL)
     parser.add_argument('--max-questions', type=int, default=30)
     parser.add_argument('--personas', type=Path, default=Path('personas'))
     parser.add_argument('--results', type=Path, default=Path('results'))
@@ -296,6 +296,7 @@ def main() -> None:
     if report.failures:
         for failure in report.failures:
             sys.stderr.write(f'{failure.name}: {failure.error_message}\n')
+            sys.stderr.write(f'{failure.error_stacktrace}\n')
         raise SystemExit(1)
 
 
