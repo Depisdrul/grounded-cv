@@ -156,6 +156,13 @@ Add the end-to-end run and `python -m grounded_cv.eval` when they exist.
   prints only file names, never the matched name. A missing or empty blocklist also
   blocks the commit. When a commit is blocked, ask the user to fix the files; do not
   bypass the hook with `--no-verify`.
+- A local `commit-msg` hook (not versioned) checks the commit message against the same
+  list. Neither hook checks the author name.
+- Before the repository changes visibility, the user runs the full-history check. It
+  skips author lines and prints only a count; `0` means clean:
+  `git log -p --all --format=%B | grep -i -c -f private/blocklist.txt`
+- Git for Windows ships GNU grep 3.0, which aborts on `grep -i -F -f`. Use `-i -f`, or
+  lowercase both sides and use `-F -f`.
 
 ## Plan
 
