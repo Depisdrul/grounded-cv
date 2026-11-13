@@ -2,7 +2,7 @@ import unittest
 
 from pydantic import ValidationError
 
-from cv_agent.models import Bullet, NewFact
+from grounded_cv.models import Bullet, NewFact
 
 
 def error_locations(validation_error):

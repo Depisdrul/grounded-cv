@@ -1,4 +1,4 @@
-# cv-agent
+# grounded-cv
 
 An agent that interviews a person about their work and writes CV bullets that cite only
 what the person said. The project measures one thing: **does the agent stay faithful to
@@ -102,7 +102,7 @@ fact is not invented. Attribution would drop to 1 of 2.
 
 ## Models
 
-The model is a configuration value (`CV_AGENT_MODEL`). The code does not change between
+The model is a configuration value (`GROUNDED_CV_MODEL`). The code does not change between
 models.
 
 | Model | Used for | Why |

@@ -6,8 +6,8 @@ from pydantic import TypeAdapter
 from pydantic_ai import Agent
 from pydantic_ai.models import Model
 
-from cv_agent.models import Bullet, Fact, Status
-from cv_agent.prompts import load_prompt
+from grounded_cv.models import Bullet, Fact, Status
+from grounded_cv.prompts import load_prompt
 
 INSTRUCTIONS = load_prompt('writer')
 

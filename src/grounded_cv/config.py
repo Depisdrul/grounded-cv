@@ -11,5 +11,5 @@ DEFAULT_MODEL = 'google-gla:gemini-2.5-flash'
 
 
 def model_name() -> str:
-    """Return `CV_AGENT_MODEL`, or `DEFAULT_MODEL` when it is unset or empty."""
-    return os.environ.get('CV_AGENT_MODEL') or DEFAULT_MODEL
+    """Return `GROUNDED_CV_MODEL`, or `DEFAULT_MODEL` if unset or empty."""
+    return os.environ.get('GROUNDED_CV_MODEL') or DEFAULT_MODEL

@@ -5,9 +5,9 @@ from pathlib import Path
 from pydantic_ai.messages import ModelResponse, ToolCallPart, UserPromptPart
 from pydantic_ai.models.function import FunctionModel
 
-from cv_agent.interviewer import _LAST_ANSWER_NOTE, EndReason, run_interview
-from cv_agent.models import Actor, Fact, Status
-from cv_agent.store import FactStore
+from grounded_cv.interviewer import _LAST_ANSWER_NOTE, EndReason, run_interview
+from grounded_cv.models import Actor, Fact, Status
+from grounded_cv.store import FactStore
 
 
 def scripted_model(*responses):

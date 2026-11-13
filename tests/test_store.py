@@ -2,8 +2,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from cv_agent.models import Actor, Fact, NewFact, Status
-from cv_agent.store import FactStore
+from grounded_cv.models import Actor, Fact, NewFact, Status
+from grounded_cv.store import FactStore
 
 
 def make_new_fact(action):

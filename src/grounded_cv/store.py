@@ -5,7 +5,7 @@ from pathlib import Path
 
 from pydantic import TypeAdapter
 
-from cv_agent.models import Fact, NewFact
+from grounded_cv.models import Fact, NewFact
 
 _FACTS = TypeAdapter(list[Fact])
 

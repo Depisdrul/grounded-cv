@@ -5,7 +5,7 @@ from enum import StrEnum
 
 from pydantic import BaseModel
 
-from cv_agent.models import Bullet, Fact, Status
+from grounded_cv.models import Bullet, Fact, Status
 
 
 class RejectionReason(StrEnum):

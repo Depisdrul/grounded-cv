@@ -2,13 +2,13 @@ import os
 import unittest
 from unittest import mock
 
-from cv_agent.config import DEFAULT_MODEL, model_name
+from grounded_cv.config import DEFAULT_MODEL, model_name
 
 
 class ModelNameTest(unittest.TestCase):
     def test_returns_the_environment_value(self):
         with mock.patch.dict(
-            os.environ, {'CV_AGENT_MODEL': 'ollama:llama3.2'}, clear=True
+            os.environ, {'GROUNDED_CV_MODEL': 'ollama:llama3.2'}, clear=True
         ):
             self.assertEqual(model_name(), 'ollama:llama3.2')
 
@@ -17,7 +17,7 @@ class ModelNameTest(unittest.TestCase):
             self.assertEqual(model_name(), DEFAULT_MODEL)
 
     def test_returns_the_default_when_empty(self):
-        with mock.patch.dict(os.environ, {'CV_AGENT_MODEL': ''}, clear=True):
+        with mock.patch.dict(os.environ, {'GROUNDED_CV_MODEL': ''}, clear=True):
             self.assertEqual(model_name(), DEFAULT_MODEL)
 
 

@@ -144,7 +144,7 @@ alternative. The examples use synthetic data.
 
 ## 10. Prompts are Markdown files, with a test that keeps them in sync
 
-- **Decision:** The agent instructions are in `src/cv_agent/prompts/*.md`.
+- **Decision:** The agent instructions are in `src/grounded_cv/prompts/*.md`.
   `tests/test_prompts.py` checks that the prompts name every `Status` and `Actor`
   value, the `save_fact` tool and the `fact_ids` field.
 - **Why:** A prompt change is an experiment. The evaluation runs again after each

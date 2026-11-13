@@ -1,8 +1,8 @@
 import unittest
 
-from cv_agent.interviewer import save_fact
-from cv_agent.models import Actor, Bullet, Status
-from cv_agent.prompts import load_prompt
+from grounded_cv.interviewer import save_fact
+from grounded_cv.models import Actor, Bullet, Status
+from grounded_cv.prompts import load_prompt
 
 
 class InterviewerPromptTest(unittest.TestCase):

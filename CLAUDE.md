@@ -50,6 +50,7 @@ Interviewer agent ──tool: save_fact──► fact store (JSON file)
 
 | Model | Fields |
 |---|---|
+| `NewFact` | The fields of `Fact` without `id`. The `save_fact` tool takes it |
 | `Fact` | `id`, `employer`, `role`, `period`, `action` (one sentence), `actor` (`me`, `team`, `colleague`), `source` (optional), `status` (`confirmed`, `to_confirm`, `do_not_claim`) |
 | `Bullet` | `text`, `fact_ids: list[str]` |
 
@@ -69,6 +70,27 @@ evaluation judge maps stored facts to persona facts; the two ID sets never match
 4. The interviewer stores a fact as `to_confirm` when the answer is vague. It does not
    guess the missing part. This is a prompt instruction. The Precision and Attribution
    metrics measure it.
+
+### Code map (facts that span files)
+
+- `FactStore.add` turns a `NewFact` into a `Fact` with ID `F<n>`. The store never
+  deletes a fact, so IDs are stable. `Bullet.fact_ids` may be empty on purpose:
+  `check_bullets()` rejects such a bullet with a reason, not with a parse error.
+- `interviewer.run_interview` takes an `Answerer` (`Callable[[str], str]`). A human and
+  the simulated interviewee both connect here; do not write a second loop. The
+  interview ends for one of three `EndReason` values:
+  - the agent returns `Done`;
+  - the person gave `max_questions` answers. The agent then runs once more with `Done`
+    as the only output, so that it stores the facts of the last answer;
+  - `max_answers_without_facts` answers in a row add no fact.
+- `writer.write_bullets` sends only `confirmed` facts to the model. `check_bullets()`
+  checks the bullets again after the model runs.
+- `prompts/*.md` name `save_fact`, every `Status` and `Actor` value, and `fact_ids`.
+  `tests/test_prompts.py` fails when the code and a prompt differ. Rename in both.
+- `config.model_name()` reads `GROUNDED_CV_MODEL` (form `provider:model`, default
+  `google-gla:gemini-2.5-flash`). It does not load `.env`; the caller loads it first.
+- Tests script the model with `pydantic_ai.models.function.FunctionModel`. No test
+  calls a real model.
 
 `docs/decisions.md` explains each design decision with an example. Read it before you
 change the metrics or the rules.
@@ -94,9 +116,10 @@ keep the results in `results/` so that runs can be compared.
 
 ## Stack
 
-- Python 3.13 (conda env `cv-agent`), PydanticAI, `pydantic-evals`. Src layout:
-  `src/cv_agent/`.
-- Model: a configuration value (`CV_AGENT_MODEL`). Gemini (free tier) for development
+- Python 3.13 (conda env `grounded-cv`), PydanticAI, `pydantic-evals` (Day 2, not installed
+  yet). Src layout:
+  `src/grounded_cv/`.
+- Model: a configuration value (`GROUNDED_CV_MODEL`). Gemini (free tier) for development
   and as the judge; a small Ollama model as the second model in the comparison; Claude
   Haiku optional. The README section "Models" gives the reasons.
 - API keys live in `.env` (gitignored). Do not read or edit `.env`; project settings
@@ -108,19 +131,19 @@ keep the results in `results/` so that runs can be compared.
 ## Commands
 
 ```bash
-conda create -n cv-agent python=3.13 -y          # once
-conda run -n cv-agent python -m pip install -e .[dev]  # once, and after a dependency change
-conda run -n cv-agent python -m unittest discover -s tests             # all tests
-conda run -n cv-agent python -m unittest tests.test_check.CheckBulletsTest.test_bullet_without_fact_ids_fails  # one test
-conda run -n cv-agent ruff format .                                    # format
-PYTHON=~/AppData/Local/miniconda3/envs/cv-agent/python.exe scripts/check.sh  # lint, format check, tests
+conda create -n grounded-cv python=3.13 -y          # once
+conda run -n grounded-cv python -m pip install -e .[dev]  # once, and after a dependency change
+PYDANTIC_AI_NO_BANNER=1 conda run -n grounded-cv python -m unittest discover -s tests  # all tests
+PYDANTIC_AI_NO_BANNER=1 conda run -n grounded-cv python -m unittest tests.test_check.CheckBulletsTest.test_bullet_without_fact_ids_fails  # one test
+conda run -n grounded-cv ruff format .                                    # format
+PYTHON=~/AppData/Local/miniconda3/envs/grounded-cv/python.exe scripts/check.sh  # lint, format check, tests
 ```
 
 A commit must pass `scripts/check.sh`. The local pre-commit hook runs it after the
 privacy checks. Ruff settings are in `ruff.toml`: line length 80, single quotes, LF
 line endings (`.gitattributes` forces LF on checkout).
 
-Add the end-to-end run and `python -m cv_agent.eval` when they exist.
+Add the end-to-end run and `python -m grounded_cv.eval` when they exist.
 
 ## Privacy rules
 
@@ -139,7 +162,7 @@ Add the end-to-end run and `python -m cv_agent.eval` when they exist.
 | Day | Work | Done when |
 |---|---|---|
 | 1 | Data model, fact store, interviewer with `save_fact`, writer, `check_bullets()` with unit tests. One persona, one end-to-end run | A run produces bullets, and every bullet passes or fails the check for a stated reason |
-| 2 | Simulated interviewee, 3–5 personas with traps, metrics, tracing, a second model, README with the results table and the known limits | `python -m cv_agent.eval` prints the metrics for two models |
+| 2 | Simulated interviewee, 3–5 personas with traps, metrics, tracing, a second model, README with the results table and the known limits | `python -m grounded_cv.eval` prints the metrics for two models |
 
 ## Later
 

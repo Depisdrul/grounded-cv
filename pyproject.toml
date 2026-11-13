@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "cv-agent"
+name = "grounded-cv"
 version = "0.1.0"
 description = "An interview agent that writes CV bullets grounded in typed facts, with a faithfulness evaluation."
 readme = "README.md"
@@ -20,4 +20,4 @@ dev = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/cv_agent"]
+packages = ["src/grounded_cv"]

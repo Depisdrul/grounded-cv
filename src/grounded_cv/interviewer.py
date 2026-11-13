@@ -9,9 +9,9 @@ from pydantic_ai import Agent, RunContext
 from pydantic_ai.messages import ModelMessage
 from pydantic_ai.models import Model
 
-from cv_agent.models import NewFact
-from cv_agent.prompts import load_prompt
-from cv_agent.store import FactStore
+from grounded_cv.models import NewFact
+from grounded_cv.prompts import load_prompt
+from grounded_cv.store import FactStore
 
 INSTRUCTIONS = load_prompt('interviewer')
 

@@ -4,8 +4,8 @@ import unittest
 from pydantic_ai.messages import ModelResponse, ToolCallPart, UserPromptPart
 from pydantic_ai.models.function import FunctionModel
 
-from cv_agent.models import Actor, Bullet, Fact, Status
-from cv_agent.writer import write_bullets
+from grounded_cv.models import Actor, Bullet, Fact, Status
+from grounded_cv.writer import write_bullets
 
 
 def make_fact(fact_id, status):

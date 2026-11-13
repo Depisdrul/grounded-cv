@@ -1,7 +1,7 @@
 import unittest
 
-from cv_agent.check import BulletCheckResult, RejectionReason, check_bullets
-from cv_agent.models import Actor, Bullet, Fact, Status
+from grounded_cv.check import BulletCheckResult, RejectionReason, check_bullets
+from grounded_cv.models import Actor, Bullet, Fact, Status
 
 
 def make_fact(fact_id, status):
